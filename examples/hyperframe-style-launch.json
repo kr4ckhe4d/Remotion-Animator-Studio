@@ -1,0 +1,538 @@
+{
+  "name": "Hyperframe-style launch",
+  "width": 1920,
+  "height": 1080,
+  "fps": 30,
+  "durationInFrames": 600,
+  "backgroundColor": "#0b0c11",
+  "tracks": [
+    {
+      "id": "t0",
+      "name": "Cursor & FX",
+      "clips": [
+        {
+          "id": "c1",
+          "name": "Cursor",
+          "element": "cursor",
+          "from": 20,
+          "durationInFrames": 90,
+          "props": {
+            "size": 64,
+            "color": "#ffffff",
+            "x": 1250,
+            "y": 900
+          },
+          "effects": [
+            {
+              "id": "e2",
+              "type": "motionPath",
+              "params": {
+                "path": "M 0 0 C -120 -120 -420 -300 -540 -350",
+                "orient": "no",
+                "easing": "easeInOut"
+              }
+            },
+            {
+              "id": "e3",
+              "type": "clickPulse",
+              "params": {
+                "at": 82,
+                "depth": 0.3,
+                "duration": 10
+              }
+            },
+            {
+              "id": "e4",
+              "type": "fadeIn",
+              "params": {
+                "duration": 10
+              }
+            }
+          ]
+        },
+        {
+          "id": "c5",
+          "name": "HONK late",
+          "element": "text",
+          "from": 115,
+          "durationInFrames": 35,
+          "props": {
+            "text": "*HONK*",
+            "fontSize": 130,
+            "color": "#ffd166",
+            "fontFamily": "Helvetica, Arial, sans-serif",
+            "fontWeight": 900,
+            "letterSpacing": 4,
+            "x": 1380,
+            "y": 330
+          },
+          "effects": [
+            {
+              "id": "e6",
+              "type": "springPop",
+              "params": {
+                "damping": 9,
+                "mass": 0.7
+              }
+            },
+            {
+              "id": "e7",
+              "type": "rgbSplit",
+              "params": {
+                "amount": 4,
+                "jitter": 2
+              }
+            },
+            {
+              "id": "e8",
+              "type": "fadeOut",
+              "params": {
+                "duration": 10
+              }
+            }
+          ]
+        },
+        {
+          "id": "c9",
+          "name": "late label",
+          "element": "text",
+          "from": 124,
+          "durationInFrames": 26,
+          "props": {
+            "text": "…250 ms late 😬",
+            "fontSize": 44,
+            "color": "#8b90a0",
+            "fontFamily": "Helvetica, Arial, sans-serif",
+            "fontWeight": 500,
+            "x": 1380,
+            "y": 470
+          },
+          "effects": [
+            {
+              "id": "e10",
+              "type": "fadeIn",
+              "params": {
+                "duration": 8
+              }
+            },
+            {
+              "id": "e11",
+              "type": "fadeOut",
+              "params": {
+                "duration": 8
+              }
+            }
+          ]
+        },
+        {
+          "id": "c12",
+          "name": "Drag ghost",
+          "element": "shape",
+          "from": 360,
+          "durationInFrames": 75,
+          "props": {
+            "kind": "rect",
+            "width": 300,
+            "height": 56,
+            "fill": "#2f6b48",
+            "borderRadius": 10,
+            "opacity": 0.9,
+            "x": 682,
+            "y": 415
+          },
+          "effects": [
+            {
+              "id": "e13",
+              "type": "transform",
+              "params": {
+                "start": 5,
+                "duration": 40,
+                "fromX": 0,
+                "toX": 258,
+                "fromY": 0,
+                "toY": 0,
+                "fromScale": 1,
+                "toScale": 1,
+                "fromRotate": 0,
+                "toRotate": 0,
+                "fromOpacity": 1,
+                "toOpacity": 1,
+                "easing": "overshoot"
+              }
+            },
+            {
+              "id": "e14",
+              "type": "glow",
+              "params": {
+                "color": "#6ee7a8",
+                "radius": 18,
+                "pulseSpeed": 0
+              }
+            },
+            {
+              "id": "e15",
+              "type": "fadeIn",
+              "params": {
+                "duration": 6
+              }
+            },
+            {
+              "id": "e16",
+              "type": "fadeOut",
+              "params": {
+                "duration": 8
+              }
+            }
+          ]
+        },
+        {
+          "id": "c17",
+          "name": "snap!",
+          "element": "text",
+          "from": 428,
+          "durationInFrames": 52,
+          "props": {
+            "text": "drag. snap. synced. ✅",
+            "fontSize": 54,
+            "color": "#6ee7a8",
+            "fontFamily": "Helvetica, Arial, sans-serif",
+            "fontWeight": 700,
+            "x": 960,
+            "y": 890
+          },
+          "effects": [
+            {
+              "id": "e18",
+              "type": "letterPop",
+              "params": {
+                "stagger": 1,
+                "duration": 12,
+                "distance": 30
+              }
+            },
+            {
+              "id": "e19",
+              "type": "fadeOut",
+              "params": {
+                "duration": 10
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "t20",
+      "name": "Scenes",
+      "clips": [
+        {
+          "id": "c21",
+          "name": "Button app",
+          "element": "html",
+          "from": 0,
+          "durationInFrames": 150,
+          "props": {
+            "html": "\n<div style=\"width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#191b26,#12131c);border:1px solid #2c3040;border-radius:28px;box-shadow:0 30px 80px rgba(0,0,0,.55)\">\n  <div style=\"display:flex;flex-direction:column;align-items:center;gap:26px\">\n    <div style=\"font-family:Helvetica, Arial, sans-serif;font-weight:700;color:#8b90a0;font-size:22px;letter-spacing:3px\">SOUND BOARD v0.1</div>\n    <div style=\"width:230px;height:230px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#ff7b6b,#e62b2b);display:flex;align-items:center;justify-content:center;font-size:88px;box-shadow:0 18px 40px rgba(230,43,43,.45), inset 0 -10px 24px rgba(0,0,0,.35)\">📯</div>\n    <div style=\"font-family:Helvetica, Arial, sans-serif;color:#e8eaf0;font-size:26px;font-weight:500\">press for honk</div>\n  </div>\n</div>",
+            "width": 820,
+            "height": 700,
+            "contentScale": 1,
+            "opacity": 1,
+            "x": 700,
+            "y": 540
+          },
+          "effects": [
+            {
+              "id": "e22",
+              "type": "slideIn",
+              "params": {
+                "direction": "bottom",
+                "distance": 260,
+                "duration": 22,
+                "easing": "easeOut"
+              }
+            },
+            {
+              "id": "e23",
+              "type": "fadeIn",
+              "params": {
+                "duration": 14
+              }
+            },
+            {
+              "id": "e24",
+              "type": "clickPulse",
+              "params": {
+                "at": 100,
+                "depth": 0.06,
+                "duration": 10
+              }
+            },
+            {
+              "id": "e25",
+              "type": "slideOut",
+              "params": {
+                "direction": "left",
+                "distance": 900,
+                "duration": 16,
+                "easing": "easeIn"
+              }
+            }
+          ]
+        },
+        {
+          "id": "c26",
+          "name": "Chat spiral",
+          "element": "html",
+          "from": 150,
+          "durationInFrames": 150,
+          "props": {
+            "html": "\n<div style=\"width:100%;height:100%;background:#15171f;border:1px solid #2c3040;border-radius:24px;padding:34px;font-family:Helvetica, Arial, sans-serif;display:flex;flex-direction:column;gap:18px;box-shadow:0 30px 80px rgba(0,0,0,.55)\">\n  <div style=\"color:#8b90a0;font-size:19px;letter-spacing:2px;font-weight:700\">ASSISTANT CHAT</div>\n  <div style=\"align-self:flex-end;background:#7c5cff;color:#fff;padding:14px 22px;border-radius:18px 18px 4px 18px;font-size:24px;max-width:75%\">the honk plays ~250ms late — fix the timing?</div>\n  <div style=\"align-self:flex-start;background:#232734;color:#e8eaf0;padding:14px 22px;border-radius:18px 18px 18px 4px;font-size:24px\">Done! Sound is now perfectly synced. ✅</div>\n  <div style=\"align-self:flex-end;background:#7c5cff;color:#fff;padding:14px 22px;border-radius:18px 18px 4px 18px;font-size:24px;max-width:75%\">…it is not. still late.</div>\n  <div style=\"align-self:flex-start;background:#232734;color:#e8eaf0;padding:14px 22px;border-radius:18px 18px 18px 4px;font-size:24px\">Done! Really fixed it this time. ✅✅</div>\n  <div style=\"align-self:flex-end;background:#7c5cff;color:#fff;padding:14px 22px;border-radius:18px 18px 4px 18px;font-size:24px\">IT&nbsp;IS&nbsp;WORSE</div>\n</div>",
+            "width": 900,
+            "height": 760,
+            "contentScale": 1,
+            "opacity": 1,
+            "x": 960,
+            "y": 540
+          },
+          "effects": [
+            {
+              "id": "e27",
+              "type": "slideIn",
+              "params": {
+                "direction": "right",
+                "distance": 700,
+                "duration": 18,
+                "easing": "easeOut"
+              }
+            },
+            {
+              "id": "e28",
+              "type": "wipeIn",
+              "params": {
+                "direction": "top",
+                "duration": 40,
+                "easing": "easeOut"
+              }
+            },
+            {
+              "id": "e29",
+              "type": "shake",
+              "params": {
+                "intensity": 4,
+                "speed": 3,
+                "rotation": 0.4
+              }
+            },
+            {
+              "id": "e30",
+              "type": "zoomOut",
+              "params": {
+                "toScale": 0.92,
+                "duration": 18,
+                "easing": "easeIn"
+              }
+            },
+            {
+              "id": "e31",
+              "type": "fadeOut",
+              "params": {
+                "duration": 14
+              }
+            }
+          ]
+        },
+        {
+          "id": "c32",
+          "name": "Timeline editor",
+          "element": "html",
+          "from": 300,
+          "durationInFrames": 180,
+          "props": {
+            "html": "\n<div style=\"width:100%;height:100%;background:#101218;border:1px solid #2c3040;border-radius:24px;padding:30px;font-family:Helvetica, Arial, sans-serif;box-shadow:0 30px 80px rgba(0,0,0,.55)\">\n  <div style=\"color:#8b90a0;font-size:19px;letter-spacing:2px;font-weight:700;margin-bottom:22px\">TIMELINE EDITOR</div>\n  <div style=\"display:flex;align-items:center;gap:14px;margin-bottom:14px\">\n    <div style=\"width:90px;color:#8b90a0;font-size:17px\">Video</div>\n    <div style=\"flex:1;height:56px;background:#232a3d;border:1px solid #35415e;border-radius:10px;display:flex;align-items:center;padding-left:16px;color:#9db1e0;font-size:18px\">📯 honk-button.mp4</div>\n  </div>\n  <div style=\"display:flex;align-items:center;gap:14px;margin-bottom:14px\">\n    <div style=\"width:90px;color:#8b90a0;font-size:17px\">SFX</div>\n    <div style=\"flex:1;height:56px;border:1px dashed #3a3350;border-radius:10px;position:relative\">\n      <div style=\"position:absolute;left:26%;top:0;width:34%;height:100%;background:linear-gradient(180deg,#3f8f5f,#2f6b48);border:1px solid #57b57e;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#d9ffe9;font-size:18px\">🔊 honk.wav</div>\n    </div>\n  </div>\n  <div style=\"display:flex;align-items:center;gap:14px\">\n    <div style=\"width:90px;color:#8b90a0;font-size:17px\">Music</div>\n    <div style=\"flex:1;height:56px;background:#3d3564;border:1px solid #55497e;border-radius:10px\"></div>\n  </div>\n</div>",
+            "width": 1180,
+            "height": 460,
+            "contentScale": 1,
+            "opacity": 1,
+            "x": 960,
+            "y": 470
+          },
+          "effects": [
+            {
+              "id": "e33",
+              "type": "zoomIn",
+              "params": {
+                "fromScale": 0.85,
+                "duration": 20,
+                "easing": "overshoot"
+              }
+            },
+            {
+              "id": "e34",
+              "type": "fadeIn",
+              "params": {
+                "duration": 12
+              }
+            },
+            {
+              "id": "e35",
+              "type": "fadeOut",
+              "params": {
+                "duration": 14
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "t36",
+      "name": "End card",
+      "clips": [
+        {
+          "id": "c37",
+          "name": "Title",
+          "element": "text",
+          "from": 480,
+          "durationInFrames": 120,
+          "props": {
+            "text": "TIMELINE EDITOR",
+            "fontSize": 150,
+            "color": "#ffffff",
+            "fontFamily": "Helvetica, Arial, sans-serif",
+            "fontWeight": 900,
+            "letterSpacing": 6,
+            "textureSrc": "https://picsum.photos/seed/aurora/1200/400",
+            "x": 960,
+            "y": 460
+          },
+          "effects": [
+            {
+              "id": "e38",
+              "type": "letterPop",
+              "params": {
+                "stagger": 1.2,
+                "duration": 14,
+                "distance": 60
+              }
+            },
+            {
+              "id": "e39",
+              "type": "shine",
+              "params": {
+                "period": 2.2,
+                "strength": 0.45
+              }
+            },
+            {
+              "id": "e40",
+              "type": "glow",
+              "params": {
+                "color": "#7c5cff",
+                "radius": 22,
+                "pulseSpeed": 0
+              }
+            }
+          ]
+        },
+        {
+          "id": "c41",
+          "name": "Sub",
+          "element": "text",
+          "from": 505,
+          "durationInFrames": 95,
+          "props": {
+            "text": "now in Remotion Animator",
+            "fontSize": 52,
+            "color": "#b9a8ff",
+            "fontFamily": "Helvetica, Arial, sans-serif",
+            "fontWeight": 400,
+            "letterSpacing": 3,
+            "x": 960,
+            "y": 620
+          },
+          "effects": [
+            {
+              "id": "e42",
+              "type": "typewriter",
+              "params": {
+                "charsPerSecond": 24
+              }
+            }
+          ]
+        },
+        {
+          "id": "c43",
+          "name": "Confetti",
+          "element": "particles",
+          "from": 480,
+          "durationInFrames": 120,
+          "props": {
+            "kind": "confetti",
+            "count": 120,
+            "width": 1920,
+            "height": 1080,
+            "size": 14,
+            "speed": 1.4,
+            "drift": 30,
+            "colors": "#7c5cff,#35c4ff,#ff5c6c,#ffd166,#6ee7a8",
+            "seed": "launch",
+            "opacity": 1,
+            "x": 960,
+            "y": 540
+          },
+          "effects": [
+            {
+              "id": "e44",
+              "type": "fadeIn",
+              "params": {
+                "duration": 10
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "t45",
+      "name": "Background",
+      "clips": [
+        {
+          "id": "c46",
+          "name": "BG",
+          "element": "background",
+          "from": 0,
+          "durationInFrames": 600,
+          "props": {
+            "fillType": "radial",
+            "colorA": "#181a28",
+            "colorB": "#0b0c11",
+            "angle": 135
+          },
+          "effects": []
+        },
+        {
+          "id": "c47",
+          "name": "Ambient dust",
+          "element": "particles",
+          "from": 0,
+          "durationInFrames": 600,
+          "props": {
+            "kind": "embers",
+            "count": 40,
+            "width": 1920,
+            "height": 1080,
+            "size": 8,
+            "speed": 0.5,
+            "drift": 40,
+            "colors": "#4a4668",
+            "seed": "dust",
+            "opacity": 0.5,
+            "x": 960,
+            "y": 540
+          },
+          "effects": []
+        }
+      ]
+    }
+  ]
+}
