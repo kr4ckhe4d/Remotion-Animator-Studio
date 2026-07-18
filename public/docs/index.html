@@ -63,6 +63,7 @@
   <a href="#start">Get started</a>
   <a href="#gallery">Gallery</a>
   <a href="#elements">Elements</a>
+  <a href="#html">HTML element</a>
   <a href="#effects">Effects</a>
   <a href="#paths">Motion paths</a>
   <a href="#presets">Presets</a>
@@ -100,9 +101,65 @@ npm run dev     # editor at http://localhost:5173 (+ local render server)</code>
   <tr><td>🎞️ GIF</td><td>Animated GIF synced to the timeline</td></tr>
   <tr><td>🌊 Wave</td><td>Layered animated sine waves</td></tr>
   <tr><td>🫧 Blob</td><td>Organic morphing blob — stack for fluid looks</td></tr>
-  <tr><td>🎊 Particles</td><td>Confetti, snow, rain, sparkles, bubbles, embers — deterministic, render-safe</td></tr>
+  <tr><td>🎊 Particles</td><td>Confetti, snow, rain, sparkles, bubbles, embers, or static <em>scatter</em> (stars in a sky, sprinkles on a donut) — colors or your own PNG/SVG per particle. Deterministic, render-safe</td></tr>
+  <tr><td>🧩 HTML</td><td>Any HTML + inline CSS as a clip — see <a href="#html">the HTML element</a></td></tr>
+  <tr><td>🖱️ Cursor</td><td>Mouse pointer for UI-demo storytelling (pair with Motion Path + Click Pulse)</td></tr>
   <tr><td>😀 Emoji / 🎨 Background</td><td>Stickers and full-frame gradient fills</td></tr>
 </table>
+
+<h2 id="html">🧩 The HTML element</h2>
+<p>The HTML element turns <strong>any HTML + CSS you can write into an animatable clip</strong> — chat windows, app mockups, pricing cards, buttons, browser frames. It's how you make HyperFrames-style product launch videos (see <code>examples/hyperframe-style-launch.json</code>). Because both the preview and the renderer are Chrome, what you paste is exactly what exports.</p>
+
+<h3>How it works</h3>
+<ul>
+  <li>The clip is a <strong>box</strong> of <em>Width × Height</em> canvas pixels, centered on <em>X/Y</em>. Your markup fills that box (make your root element <code>width:100%;height:100%</code>).</li>
+  <li><strong>Content scale</strong> zooms the markup inside the box without reflowing it — design at a comfortable size, then scale.</li>
+  <li>Edit the markup in the Inspector textarea; the <strong>✨ Format HTML</strong> button pretty-prints it.</li>
+  <li>Animate the whole box with any effects: slide it in, wipe it, shake it, glitch it, move it along a path.</li>
+</ul>
+
+<h3>Rules &amp; gotchas</h3>
+<ul>
+  <li><strong>Inline styles only</strong> (<code>style="…"</code>). A <code>&lt;style&gt;</code> tag technically works but applies globally — if two HTML clips define the same class, they'll fight. Inline styles can't collide.</li>
+  <li><strong>No JavaScript.</strong> Scripts don't execute (by design — animation belongs to effects, so it's deterministic per frame). CSS animations/transitions also won't render correctly on export because frames are captured out of real time: use the editor's effects for motion.</li>
+  <li><strong>Images inside HTML</strong>: allowed via <code>&lt;img&gt;</code> with absolute URLs or data-URIs. Prefer the dedicated Image element when the image needs its own animation.</li>
+  <li><strong>Fonts</strong>: system fonts are safe (<code>Helvetica, Arial, Georgia, 'Courier New'…</code>). Webfonts loaded by URL aren't wired up yet.</li>
+  <li>The box <strong>clips its content</strong> (overflow hidden) — nothing bleeds outside the Width×Height.</li>
+</ul>
+
+<h3>Copy-paste starters</h3>
+<p><strong>App window with title bar</strong></p>
+<pre><code>&lt;div style="width:100%;height:100%;background:#15171f;border:1px solid #2c3040;
+     border-radius:20px;overflow:hidden;font-family:Helvetica,Arial,sans-serif"&gt;
+  &lt;div style="height:44px;background:#0f1116;display:flex;align-items:center;gap:8px;padding:0 16px"&gt;
+    &lt;span style="width:12px;height:12px;border-radius:50%;background:#ff5f57"&gt;&lt;/span&gt;
+    &lt;span style="width:12px;height:12px;border-radius:50%;background:#febc2e"&gt;&lt;/span&gt;
+    &lt;span style="width:12px;height:12px;border-radius:50%;background:#28c840"&gt;&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;div style="padding:28px;color:#e8eaf0;font-size:24px"&gt;Your app UI here&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<p><strong>Chat bubbles</strong></p>
+<pre><code>&lt;div style="width:100%;height:100%;display:flex;flex-direction:column;gap:14px;
+     font-family:Helvetica,Arial,sans-serif;font-size:22px"&gt;
+  &lt;div style="align-self:flex-end;background:#7c5cff;color:#fff;padding:12px 18px;
+       border-radius:16px 16px 4px 16px"&gt;Can you fix the timing?&lt;/div&gt;
+  &lt;div style="align-self:flex-start;background:#232734;color:#e8eaf0;padding:12px 18px;
+       border-radius:16px 16px 16px 4px"&gt;Done! ✅&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<p><strong>Big call-to-action button</strong></p>
+<pre><code>&lt;div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center"&gt;
+  &lt;div style="background:linear-gradient(180deg,#8b6bff,#6a48f0);color:#fff;
+       padding:22px 54px;border-radius:18px;font:700 34px Helvetica;
+       box-shadow:0 16px 40px rgba(124,92,255,.45)"&gt;Get started&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+
+<h3>Recipe: fake a UI interaction</h3>
+<ol>
+  <li>Add an <strong>HTML</strong> clip with your mockup (button, form, timeline…).</li>
+  <li>Add a <strong>🖱️ Cursor</strong> clip on a track above it. Give it a <em>Motion Path</em> (draw it on the canvas) ending on the control.</li>
+  <li>Add <strong>👆 Click Pulse</strong> to the cursor at the arrival frame, and a subtle Click Pulse (depth ≈ 0.06) to the HTML clip a frame later — the "press" reads instantly.</li>
+  <li>React to the click with other clips: a text pop, a color flash, a scene cut.</li>
+</ol>
 
 <h2 id="effects">Effects</h2>
 <p>Drag any effect onto a clip; stack freely. Every parameter is editable in the Inspector.</p>
