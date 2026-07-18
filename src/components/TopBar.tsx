@@ -16,6 +16,40 @@ const SIZE_PRESETS: Record<string, [number, number]> = {
   'Ultrawide 2560×1080': [2560, 1080],
 };
 
+const PROJECT_FILE_TYPES = [
+  { description: 'Animator project', accept: { 'application/json': ['.json'] as const } },
+];
+
+/** Number input that applies on blur/Enter (so typing "3840" doesn't rescale at "3") */
+const SizeInput: React.FC<{ value: number; title: string; onCommit: (v: number) => void }> = ({
+  value,
+  title,
+  onCommit,
+}) => {
+  const [text, setText] = useState(String(value));
+  React.useEffect(() => setText(String(value)), [value]);
+  const commit = () => {
+    const v = Math.max(16, Math.min(7680, Number(text) || value));
+    setText(String(v));
+    if (v !== value) onCommit(v);
+  };
+  return (
+    <input
+      type="number"
+      min={16}
+      max={7680}
+      value={text}
+      title={title}
+      style={{ width: 62 }}
+      onChange={(e) => setText(e.target.value)}
+      onBlur={commit}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') (e.target as HTMLInputElement).blur();
+      }}
+    />
+  );
+};
+
 const blankProject = (): Project => ({
   name: 'Untitled',
   width: 1920,
@@ -35,18 +69,65 @@ export const TopBar: React.FC = () => {
   const muted = useStore((s) => s.muted);
   const canUndo = useStore((s) => s.history.length > 0);
   const canRedo = useStore((s) => s.future.length > 0);
-  const { setProject, replaceProject, undo, redo } = useStore.getState();
+  const { setProject, resizeProject, replaceProject, undo, redo } = useStore.getState();
   const fileRef = useRef<HTMLInputElement>(null);
+  // File System Access API handle of the opened/saved file — lets Save overwrite in place
+  const fileHandleRef = useRef<any>(null);
   const [showExport, setShowExport] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
+  const [savedFlash, setSavedFlash] = useState(false);
+  const fsAccess = 'showSaveFilePicker' in window;
 
-  const saveJson = () => {
-    const blob = new Blob([JSON.stringify(project, null, 2)], { type: 'application/json' });
+  const currentJson = () => JSON.stringify(useStore.getState().project, null, 2);
+
+  const downloadJson = () => {
+    const blob = new Blob([currentJson()], { type: 'application/json' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
     a.download = `${project.name.replace(/[^a-z0-9-_ ]/gi, '') || 'project'}.json`;
     a.click();
     URL.revokeObjectURL(a.href);
+  };
+
+  const flashSaved = () => {
+    setSavedFlash(true);
+    window.setTimeout(() => setSavedFlash(false), 1200);
+  };
+
+  const writeToHandle = async (handle: any) => {
+    const writable = await handle.createWritable();
+    await writable.write(currentJson());
+    await writable.close();
+    flashSaved();
+  };
+
+  const saveAs = async () => {
+    if (!fsAccess) {
+      downloadJson();
+      return;
+    }
+    try {
+      const handle = await (window as any).showSaveFilePicker({
+        suggestedName: `${project.name.replace(/[^a-z0-9-_ ]/gi, '') || 'project'}.json`,
+        types: PROJECT_FILE_TYPES,
+      });
+      fileHandleRef.current = handle;
+      await writeToHandle(handle);
+    } catch {
+      /* user cancelled the picker */
+    }
+  };
+
+  const save = async () => {
+    if (fileHandleRef.current) {
+      try {
+        await writeToHandle(fileHandleRef.current);
+        return;
+      } catch {
+        /* stale handle (file moved?) — fall back to Save As */
+      }
+    }
+    await saveAs();
   };
 
   const loadJson = (file: File) => {
@@ -59,6 +140,20 @@ export const TopBar: React.FC = () => {
         alert('That file does not look like a saved project.');
       }
     });
+  };
+
+  const open = async () => {
+    if (!fsAccess) {
+      fileRef.current?.click();
+      return;
+    }
+    try {
+      const [handle] = await (window as any).showOpenFilePicker({ types: PROJECT_FILE_TYPES });
+      fileHandleRef.current = handle;
+      loadJson(await handle.getFile());
+    } catch {
+      /* user cancelled the picker */
+    }
   };
 
   const sizeKey =
@@ -105,32 +200,17 @@ export const TopBar: React.FC = () => {
           value={sizeKey}
           onChange={(e) => {
             const preset = SIZE_PRESETS[e.target.value];
-            if (preset) setProject({ width: preset[0], height: preset[1] });
+            if (preset) resizeProject(preset[0], preset[1]);
           }}
+          title="Changing size rescales all content to fit"
         >
           {[...Object.keys(SIZE_PRESETS), 'Custom'].map((k) => (
             <option key={k}>{k}</option>
           ))}
         </select>
-        <input
-          type="number"
-          min={16}
-          max={7680}
-          value={project.width}
-          onChange={(e) => setProject({ width: Math.max(16, Number(e.target.value)) })}
-          style={{ width: 62 }}
-          title="Width"
-        />
+        <SizeInput value={project.width} title="Width" onCommit={(v) => resizeProject(v, project.height)} />
         <span className="dim">×</span>
-        <input
-          type="number"
-          min={16}
-          max={7680}
-          value={project.height}
-          onChange={(e) => setProject({ height: Math.max(16, Number(e.target.value)) })}
-          style={{ width: 62 }}
-          title="Height"
-        />
+        <SizeInput value={project.height} title="Height" onCommit={(v) => resizeProject(project.width, v)} />
         <label className="dim">Sec</label>
         <input
           type="number"
@@ -176,16 +256,22 @@ export const TopBar: React.FC = () => {
           title="New project"
           onClick={() => {
             if (window.confirm('Start a new project? (Current work stays in undo history)')) {
+              fileHandleRef.current = null;
               replaceProject(blankProject());
             }
           }}
         >
           ✚ New
         </button>
-        <button className="btn" onClick={saveJson}>
-          💾 Save
+        <button className="btn" onClick={save} title={fsAccess ? 'Overwrites the opened file' : 'Downloads a JSON file'}>
+          {savedFlash ? '✓ Saved' : '💾 Save'}
         </button>
-        <button className="btn" onClick={() => fileRef.current?.click()}>
+        {fsAccess ? (
+          <button className="btn" onClick={saveAs} title="Save to a new file">
+            Save As…
+          </button>
+        ) : null}
+        <button className="btn" onClick={open}>
           📂 Open
         </button>
         <button className="btn" onClick={() => setShowHelp(true)} title="Help & docs">
