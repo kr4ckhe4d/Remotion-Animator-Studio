@@ -150,17 +150,36 @@ export const Inspector: React.FC = () => {
 
   if (selectedClipIds.length > 1) {
     const clips = selectedClipIds.map((id) => findClip(project, id)).filter(Boolean);
+    const grouped = clips.length > 0 && clips.every((c) => c!.groupId && c!.groupId === clips[0]!.groupId);
     return (
       <aside className="inspector">
         <div className="panel-title">{selectedClipIds.length} clips selected</div>
         <div className="inspector-empty">
           {clips.map((c) => (
             <div key={c!.id}>
+              {c!.groupId ? '⛓ ' : ''}
               {ELEMENTS[c!.element].icon} {c!.name}
             </div>
           ))}
         </div>
-        <button className="btn" style={{ width: '100%', marginTop: 12 }} onClick={duplicateSelection}>
+        {grouped ? (
+          <button
+            className="btn"
+            style={{ width: '100%', marginTop: 12 }}
+            onClick={() => useStore.getState().ungroupSelection()}
+          >
+            ⛓️‍💥 Ungroup (⇧⌘G)
+          </button>
+        ) : (
+          <button
+            className="btn"
+            style={{ width: '100%', marginTop: 12 }}
+            onClick={() => useStore.getState().groupSelection()}
+          >
+            ⛓ Group — select & move as one (⌘G)
+          </button>
+        )}
+        <button className="btn" style={{ width: '100%', marginTop: 8 }} onClick={duplicateSelection}>
           ⧉ Duplicate all (⌘D)
         </button>
         <button className="btn btn-danger" style={{ marginTop: 8 }} onClick={() => removeClips(selectedClipIds)}>

@@ -23,6 +23,8 @@ const ClipView: React.FC<{ clip: Clip; trackId: string }> = ({ clip, trackId }) 
   const gesture = useRef<{
     mode: 'move' | 'resize-l' | 'resize-r';
     startX: number;
+    startY: number;
+    lastY: number;
     origFrom: number;
     origDur: number;
     /** all selected clips' original positions, for group moves */
@@ -51,7 +53,15 @@ const ClipView: React.FC<{ clip: Clip; trackId: string }> = ({ clip, trackId }) 
             })
             .filter((x): x is { clipId: string; from: number; dur: number } => x !== null)
         : [];
-    gesture.current = { mode, startX: e.clientX, origFrom: clip.from, origDur: clip.durationInFrames, group };
+    gesture.current = {
+      mode,
+      startX: e.clientX,
+      startY: e.clientY,
+      lastY: e.clientY,
+      origFrom: clip.from,
+      origDur: clip.durationInFrames,
+      group,
+    };
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
   };
 
@@ -66,6 +76,7 @@ const ClipView: React.FC<{ clip: Clip; trackId: string }> = ({ clip, trackId }) 
         df = Math.min(df, totalFrames - m.dur - m.from);
       }
       shiftClips(g.group.map((m) => ({ clipId: m.clipId, from: m.from + df })));
+      g.lastY = e.clientY;
     } else if (g.mode === 'resize-r') {
       const dur = Math.max(2, Math.min(g.origDur + df, totalFrames - g.origFrom));
       updateClip(clip.id, { durationInFrames: dur });
@@ -76,7 +87,18 @@ const ClipView: React.FC<{ clip: Clip; trackId: string }> = ({ clip, trackId }) 
   };
 
   const onPointerUp = () => {
+    const g = gesture.current;
     gesture.current = null;
+    // vertical drags move the clip to another track on release (single clip only)
+    if (g && g.mode === 'move' && g.group.length === 1) {
+      const rows = Math.round((g.lastY - g.startY) / TRACK_HEIGHT);
+      if (rows !== 0) {
+        const s = useStore.getState();
+        const idx = s.project.tracks.findIndex((t) => t.id === trackId);
+        const target = Math.max(0, Math.min(s.project.tracks.length - 1, idx + rows));
+        if (target !== idx) s.moveClipToTrack(clip.id, s.project.tracks[target].id);
+      }
+    }
   };
 
   return (
@@ -105,6 +127,7 @@ const ClipView: React.FC<{ clip: Clip; trackId: string }> = ({ clip, trackId }) 
     >
       <div className="clip-handle clip-handle-l" onPointerDown={onPointerDown('resize-l')} />
       <span className="clip-label">
+        {clip.groupId ? '⛓ ' : ''}
         {ELEMENTS[clip.element].icon} {clip.name}
         {clip.effects.length > 0 ? <span className="clip-fx-badge">{clip.effects.length}fx</span> : null}
       </span>
@@ -143,8 +166,10 @@ const TrackRow: React.FC<{ track: Track }> = ({ track }) => {
       onPointerDown={(e) => {
         if (e.target === e.currentTarget) {
           const sel = useStore.getState().selectedClipIds;
-          if (sel.length === 1 && e.shiftKey) moveClipToTrack(sel[0], track.id);
-          else if (!isAdditive(e)) useStore.getState().selectClip(null);
+          if (sel.length === 1 && e.shiftKey) {
+            useStore.getState().commit();
+            moveClipToTrack(sel[0], track.id);
+          } else if (!isAdditive(e)) useStore.getState().selectClip(null);
         }
       }}
     >
@@ -210,12 +235,36 @@ export const Timeline: React.FC = () => {
       <div className="timeline-body">
         <div className="track-headers" ref={headersRef}>
           <div className="ruler-spacer" />
-          {project.tracks.map((t) => (
+          {project.tracks.map((t, i) => (
             <div key={t.id} className="track-header" style={{ height: TRACK_HEIGHT }}>
-              <span className="track-name">{t.name}</span>
-              <button className="track-delete" title="Delete track" onClick={() => removeTrack(t.id)}>
-                ×
-              </button>
+              <input
+                className="track-name-input"
+                value={t.name}
+                title="Rename track"
+                onFocus={() => useStore.getState().commit()}
+                onChange={(e) => useStore.getState().renameTrack(t.id, e.target.value)}
+              />
+              <span className="track-btns">
+                <button
+                  className="track-btn"
+                  title="Move layer up"
+                  disabled={i === 0}
+                  onClick={() => useStore.getState().moveTrack(t.id, -1)}
+                >
+                  ▲
+                </button>
+                <button
+                  className="track-btn"
+                  title="Move layer down"
+                  disabled={i === project.tracks.length - 1}
+                  onClick={() => useStore.getState().moveTrack(t.id, 1)}
+                >
+                  ▼
+                </button>
+                <button className="track-delete" title="Delete track" onClick={() => removeTrack(t.id)}>
+                  ×
+                </button>
+              </span>
             </div>
           ))}
         </div>

@@ -122,6 +122,10 @@ export const App: React.FC = () => {
       } else if (mod && e.key.toLowerCase() === 'd') {
         e.preventDefault();
         s.duplicateSelection();
+      } else if (mod && e.key.toLowerCase() === 'g') {
+        e.preventDefault();
+        if (e.shiftKey) s.ungroupSelection();
+        else s.groupSelection();
       }
     };
     window.addEventListener('keydown', onKey);

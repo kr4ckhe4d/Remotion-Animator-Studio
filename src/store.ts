@@ -47,6 +47,11 @@ interface EditorState {
 
   addTrack: () => void;
   removeTrack: (trackId: string) => void;
+  /** Move a track up (-1) or down (+1) in the layer order */
+  moveTrack: (trackId: string, dir: -1 | 1) => void;
+  renameTrack: (trackId: string, name: string) => void;
+  groupSelection: () => void;
+  ungroupSelection: () => void;
   addClip: (element: ElementType, trackId: string, atFrame: number) => void;
   removeClips: (clipIds: string[]) => void;
   updateClip: (clipId: string, patch: Partial<Pick<Clip, 'from' | 'durationInFrames' | 'name'>>) => void;
@@ -138,11 +143,17 @@ export const useStore = create<EditorState>((set, get) => ({
   selectClip: (id, additive = false) =>
     set((s) => {
       if (id === null) return { selectedClipIds: [] };
-      if (!additive) return { selectedClipIds: [id] };
+      // a grouped clip always brings its whole group along
+      const clip = findClip(s.project, id);
+      const groupIds = clip?.groupId
+        ? s.project.tracks.flatMap((t) => t.clips.filter((c) => c.groupId === clip.groupId).map((c) => c.id))
+        : [id];
+      if (!additive) return { selectedClipIds: groupIds };
+      const allSelected = groupIds.every((g) => s.selectedClipIds.includes(g));
       return {
-        selectedClipIds: s.selectedClipIds.includes(id)
-          ? s.selectedClipIds.filter((x) => x !== id)
-          : [...s.selectedClipIds, id],
+        selectedClipIds: allSelected
+          ? s.selectedClipIds.filter((x) => !groupIds.includes(x))
+          : [...new Set([...s.selectedClipIds, ...groupIds])],
       };
     }),
   setCurrentFrame: (f) => set({ currentFrame: f }),
@@ -195,6 +206,56 @@ export const useStore = create<EditorState>((set, get) => ({
     }));
   },
 
+  moveTrack: (trackId, dir) => {
+    const s = get();
+    const idx = s.project.tracks.findIndex((t) => t.id === trackId);
+    const target = idx + dir;
+    if (idx < 0 || target < 0 || target >= s.project.tracks.length) return;
+    get().commit();
+    set((state) => {
+      const tracks = [...state.project.tracks];
+      [tracks[idx], tracks[target]] = [tracks[target], tracks[idx]];
+      return { project: { ...state.project, tracks } };
+    });
+  },
+  renameTrack: (trackId, name) =>
+    set((s) => ({
+      project: {
+        ...s.project,
+        tracks: s.project.tracks.map((t) => (t.id === trackId ? { ...t, name } : t)),
+      },
+    })),
+  groupSelection: () => {
+    const s = get();
+    if (s.selectedClipIds.length < 2) return;
+    get().commit();
+    const gid = uid('g');
+    const sel = new Set(s.selectedClipIds);
+    set((state) => ({
+      project: {
+        ...state.project,
+        tracks: state.project.tracks.map((t) => ({
+          ...t,
+          clips: t.clips.map((c) => (sel.has(c.id) ? { ...c, groupId: gid } : c)),
+        })),
+      },
+    }));
+  },
+  ungroupSelection: () => {
+    const s = get();
+    if (s.selectedClipIds.length === 0) return;
+    get().commit();
+    const sel = new Set(s.selectedClipIds);
+    set((state) => ({
+      project: {
+        ...state.project,
+        tracks: state.project.tracks.map((t) => ({
+          ...t,
+          clips: t.clips.map((c) => (sel.has(c.id) ? { ...c, groupId: undefined } : c)),
+        })),
+      },
+    }));
+  },
   addClip: (element, trackId, atFrame) => {
     get().commit();
     set((s) => {
@@ -254,10 +315,10 @@ export const useStore = create<EditorState>((set, get) => ({
     set((s) => ({
       project: mapClips(s.project, clipId, (c) => ({ ...c, props: { ...c.props, ...patch } })),
     })),
+  // no history push — callers commit at gesture start
   moveClipToTrack: (clipId, trackId) => {
     const clip = findClip(get().project, clipId);
     if (!clip) return;
-    get().commit();
     set((s) => ({
       project: {
         ...s.project,
