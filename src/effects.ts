@@ -467,6 +467,21 @@ export const EFFECTS: Record<EffectType, EffectDef> = {
     defaults: { charsPerSecond: 20 },
     textOnly: true,
   },
+  letterWave: {
+    label: 'Liquid Wave',
+    icon: '🌊',
+    category: 'loop',
+    description: 'Letters ripple on a sine wave — optionally driven by an audio track',
+    params: [
+      { key: 'amplitude', label: 'Amplitude (px)', kind: 'number', min: 1, max: 200, step: 1 },
+      { key: 'wavelength', label: 'Letters per wave', kind: 'number', min: 1, max: 30, step: 0.5 },
+      { key: 'speed', label: 'Speed (Hz)', kind: 'number', min: 0.05, max: 8, step: 0.05 },
+      { key: 'audioSrc', label: 'Audio URL (optional — bass drives amplitude)', kind: 'text' },
+      { key: 'audioGain', label: 'Audio response', kind: 'number', min: 0, max: 20, step: 0.5 },
+    ],
+    defaults: { amplitude: 16, wavelength: 6, speed: 1, audioSrc: '', audioGain: 6 },
+    textOnly: true,
+  },
   letterPop: {
     label: 'Letter Pop',
     icon: '🔤',
@@ -780,6 +795,7 @@ export const computeEffectStyle = (
       }
       case 'typewriter':
       case 'letterPop':
+      case 'letterWave':
         // Handled inside the Text element renderer.
         break;
     }

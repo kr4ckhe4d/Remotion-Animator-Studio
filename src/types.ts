@@ -12,7 +12,12 @@ export type ElementType =
   | 'blob'
   | 'particles'
   | 'html'
-  | 'cursor';
+  | 'cursor'
+  | 'synthGrid'
+  | 'neonSun'
+  | 'isoCity'
+  | 'skyCycle'
+  | 'commitGraph';
 
 export type EffectType =
   | 'fadeIn'
@@ -48,7 +53,8 @@ export type EffectType =
   | 'colorAdjust'
   | 'flicker'
   | 'float'
-  | 'clickPulse';
+  | 'clickPulse'
+  | 'letterWave';
 
 export interface EffectInstance {
   id: string;

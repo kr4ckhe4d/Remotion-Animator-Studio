@@ -13,8 +13,68 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from 'remotion';
+import { useAudioData, visualizeAudio } from '@remotion/media-utils';
 import { computeEffectStyle, effectParams, typewriterChars, type ComputedStyle } from '../effects';
 import type { Clip, Project } from '../types';
+import { CommitGraph, IsoCity, NeonSun, SkyCycle, SynthGrid } from './scenes';
+
+/** Letters riding a sine wave; `gain` scales amplitude (1 = manual, >1 = audio-driven). */
+const WavyLetters: React.FC<{
+  full: string;
+  baseStyle: React.CSSProperties;
+  textureStyle: React.CSSProperties;
+  amplitude: number;
+  wavelength: number;
+  speed: number;
+  gain: number;
+}> = ({ full, baseStyle, textureStyle, amplitude, wavelength, speed, gain }) => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  return (
+    <div style={baseStyle}>
+      {full.split('').map((ch, i) => (
+        <span
+          key={i}
+          style={{
+            display: 'inline-block',
+            whiteSpace: 'pre',
+            transform: `translateY(${
+              Math.sin((frame / fps) * speed * Math.PI * 2 + (i / Math.max(0.5, wavelength)) * Math.PI * 2) *
+              amplitude *
+              gain
+            }px)`,
+            ...textureStyle,
+          }}
+        >
+          {ch}
+        </span>
+      ))}
+    </div>
+  );
+};
+
+/** Same, but amplitude follows the bass of an audio file. */
+const AudioWavyLetters: React.FC<{
+  src: string;
+  audioGain: number;
+  full: string;
+  baseStyle: React.CSSProperties;
+  textureStyle: React.CSSProperties;
+  amplitude: number;
+  wavelength: number;
+  speed: number;
+}> = ({ src, audioGain, ...rest }) => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const audioData = useAudioData(src);
+  let gain = 1;
+  if (audioData) {
+    const freqs = visualizeAudio({ fps, frame, audioData, numberOfSamples: 32 });
+    const bass = (freqs[1] + freqs[2] + freqs[3]) / 3;
+    gain = 0.3 + bass * audioGain;
+  }
+  return <WavyLetters {...rest} gain={gain} />;
+};
 
 const TextContent: React.FC<{ clip: Clip }> = ({ clip }) => {
   const frame = useCurrentFrame();
@@ -75,6 +135,24 @@ const TextContent: React.FC<{ clip: Clip }> = ({ clip }) => {
           );
         })}
       </div>
+    );
+  }
+
+  const waveFx = clip.effects.find((e) => e.type === 'letterWave');
+  if (waveFx) {
+    const lw = effectParams(waveFx);
+    const waveProps = {
+      full,
+      baseStyle,
+      textureStyle,
+      amplitude: Number(lw.amplitude),
+      wavelength: Number(lw.wavelength),
+      speed: Number(lw.speed),
+    };
+    return String(lw.audioSrc).trim() ? (
+      <AudioWavyLetters src={String(lw.audioSrc).trim()} audioGain={Number(lw.audioGain)} {...waveProps} />
+    ) : (
+      <WavyLetters {...waveProps} gain={1} />
     );
   }
 
@@ -460,6 +538,16 @@ const ElementContent: React.FC<{ clip: Clip }> = ({ clip }) => {
           />
         </div>
       );
+    case 'synthGrid':
+      return <SynthGrid clip={clip} />;
+    case 'neonSun':
+      return <NeonSun clip={clip} />;
+    case 'isoCity':
+      return <IsoCity clip={clip} />;
+    case 'skyCycle':
+      return <SkyCycle clip={clip} />;
+    case 'commitGraph':
+      return <CommitGraph clip={clip} />;
     case 'cursor':
       return (
         <svg
