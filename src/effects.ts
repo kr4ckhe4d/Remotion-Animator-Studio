@@ -282,6 +282,18 @@ export const EFFECTS: Record<EffectType, EffectDef> = {
     ],
     defaults: { distance: 18, speed: 0.4 },
   },
+  clickPulse: {
+    label: 'Click Pulse',
+    icon: '👆',
+    category: 'style',
+    description: 'A quick press-down scale dip at a chosen frame — sells a mouse click',
+    params: [
+      { key: 'at', label: 'Click at (frame)', kind: 'number', min: 0, max: 600, step: 1 },
+      { key: 'depth', label: 'Depth', kind: 'number', min: 0.05, max: 0.6, step: 0.01 },
+      { key: 'duration', label: 'Duration (frames)', kind: 'number', min: 2, max: 60, step: 1 },
+    ],
+    defaults: { at: 30, depth: 0.18, duration: 10 },
+  },
   bounceDrop: {
     label: 'Bounce Drop',
     icon: '🏀',
@@ -660,6 +672,13 @@ export const computeEffectStyle = (
       case 'float':
         out.translateY += Math.sin((frame / fps) * Number(p.speed) * Math.PI * 2) * Number(p.distance);
         break;
+      case 'clickPulse': {
+        const local = (frame - Number(p.at)) / Number(p.duration);
+        if (local >= 0 && local <= 1) {
+          out.scale *= 1 - Number(p.depth) * Math.sin(Math.PI * local);
+        }
+        break;
+      }
       case 'bounceDrop': {
         const t = Math.max(0, Math.min(1, frame / Number(p.duration)));
         out.translateY -= (1 - Easing.bounce(t)) * Number(p.height);

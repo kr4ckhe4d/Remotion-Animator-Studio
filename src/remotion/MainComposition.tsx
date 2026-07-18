@@ -31,10 +31,23 @@ const TextContent: React.FC<{ clip: Clip }> = ({ clip }) => {
     whiteSpace: 'pre',
     textAlign: 'center',
   };
+  // texture-masked typography: an image fills the letters (background-clip: text)
+  const textureStyle: React.CSSProperties = p.textureSrc
+    ? {
+        backgroundImage: `url(${p.textureSrc})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        WebkitBackgroundClip: 'text',
+        backgroundClip: 'text',
+        color: 'transparent',
+      }
+    : {};
 
   const letterFx = clip.effects.find((e) => e.type === 'letterPop');
   if (letterFx) {
     const lp = effectParams(letterFx);
+    // background-clip:text can't paint into transformed children,
+    // so with letter animation the texture is applied per letter
     return (
       <div style={baseStyle}>
         {full.split('').map((ch, i) => {
@@ -54,6 +67,7 @@ const TextContent: React.FC<{ clip: Clip }> = ({ clip }) => {
                 whiteSpace: 'pre',
                 opacity: visible ? Math.min(1, prog * 1.5) : 0,
                 transform: `translateY(${(1 - prog) * Number(lp.distance)}px)`,
+                ...textureStyle,
               }}
             >
               {ch}
@@ -65,7 +79,7 @@ const TextContent: React.FC<{ clip: Clip }> = ({ clip }) => {
   }
 
   const visible = full.slice(0, typewriterChars(frame, fps, clip.effects, full.length));
-  return <div style={baseStyle}>{visible}</div>;
+  return <div style={{ ...baseStyle, ...textureStyle }}>{visible}</div>;
 };
 
 const ShapeContent: React.FC<{ clip: Clip }> = ({ clip }) => {
@@ -376,6 +390,37 @@ const ElementContent: React.FC<{ clip: Clip }> = ({ clip }) => {
       return <BlobContent clip={clip} />;
     case 'particles':
       return <ParticlesContent clip={clip} />;
+    case 'html':
+      return (
+        <div style={{ width: Number(p.width), height: Number(p.height), opacity: p.opacity, overflow: 'hidden' }}>
+          <div
+            style={{
+              width: `${100 / Number(p.contentScale || 1)}%`,
+              height: `${100 / Number(p.contentScale || 1)}%`,
+              transform: `scale(${p.contentScale || 1})`,
+              transformOrigin: 'top left',
+            }}
+            dangerouslySetInnerHTML={{ __html: String(p.html ?? '') }}
+          />
+        </div>
+      );
+    case 'cursor':
+      return (
+        <svg
+          width={Number(p.size)}
+          height={Number(p.size)}
+          viewBox="0 0 24 24"
+          style={{ display: 'block', filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.5))' }}
+        >
+          <path
+            d="M5 2 L5 20.5 L9.8 16.2 L12.6 22.5 L15.6 21.2 L12.8 15 L19 14.6 Z"
+            fill={p.color}
+            stroke="#111"
+            strokeWidth={1.4}
+            strokeLinejoin="round"
+          />
+        </svg>
+      );
     case 'image':
       return (
         <Img

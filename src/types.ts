@@ -10,7 +10,9 @@ export type ElementType =
   | 'counter'
   | 'wave'
   | 'blob'
-  | 'particles';
+  | 'particles'
+  | 'html'
+  | 'cursor';
 
 export type EffectType =
   | 'fadeIn'
@@ -45,7 +47,8 @@ export type EffectType =
   | 'flipOut'
   | 'colorAdjust'
   | 'flicker'
-  | 'float';
+  | 'float'
+  | 'clickPulse';
 
 export interface EffectInstance {
   id: string;
@@ -86,7 +89,7 @@ export interface Project {
 export interface ParamDef {
   key: string;
   label: string;
-  kind: 'number' | 'color' | 'text' | 'select';
+  kind: 'number' | 'color' | 'text' | 'textarea' | 'select';
   min?: number;
   max?: number;
   step?: number;

@@ -139,6 +139,19 @@ const ParamControl: React.FC<{
           />
         </div>
       );
+    case 'textarea':
+      return (
+        <div className="param-row">
+          <label>{def.label}</label>
+          <textarea
+            rows={8}
+            value={String(value)}
+            onFocus={onCommit}
+            onChange={(e) => onChange(e.target.value)}
+            spellCheck={false}
+          />
+        </div>
+      );
   }
 };
 

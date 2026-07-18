@@ -122,6 +122,18 @@ body {
   color: var(--text-dim);
 }
 
+textarea {
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 6px 8px;
+  font-size: 11px;
+  font-family: 'SF Mono', Menlo, monospace;
+  resize: vertical;
+  width: 100%;
+}
+
 select,
 input[type='number'],
 input[type='text'] {
