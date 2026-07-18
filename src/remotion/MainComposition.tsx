@@ -511,7 +511,11 @@ const ClipRenderer: React.FC<{ clip: Clip }> = ({ clip }) => {
         opacity: fx.opacity,
         filter: filters.length ? filters.join(' ') : undefined,
         clipPath: fx.clipPath ?? undefined,
-        transform: `translate(-50%, -50%) translate(${fx.translateX}px, ${fx.translateY}px) scale(${fx.scale}) rotate(${fx.rotate}deg)`,
+        transform:
+          `translate(-50%, -50%) translate(${fx.translateX}px, ${fx.translateY}px) scale(${fx.scale}) rotate(${fx.rotate}deg)` +
+          (fx.rotateX !== 0 || fx.rotateY !== 0
+            ? ` perspective(1200px) rotateX(${fx.rotateX}deg) rotateY(${fx.rotateY}deg)`
+            : ''),
       }}
     >
       <div style={{ position: 'relative' }}>

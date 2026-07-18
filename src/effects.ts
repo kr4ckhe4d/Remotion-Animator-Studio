@@ -221,6 +221,67 @@ export const EFFECTS: Record<EffectType, EffectDef> = {
     ],
     defaults: { zoomFrom: 1, zoomTo: 1.18, panX: -60, panY: -30 },
   },
+  flipIn: {
+    label: 'Flip In (3D)',
+    icon: '🪟',
+    category: 'in',
+    description: 'Flips in around the horizontal or vertical axis',
+    params: [
+      { key: 'axis', label: 'Axis', kind: 'select', options: ['vertical', 'horizontal'] },
+      { key: 'duration', label: 'Duration (frames)', kind: 'number', min: 1, max: 300, step: 1 },
+      EASING_PARAM,
+    ],
+    defaults: { axis: 'vertical', duration: 22, easing: 'easeOut' },
+  },
+  flipOut: {
+    label: 'Flip Out (3D)',
+    icon: '🪟',
+    category: 'out',
+    description: 'Flips away at the end',
+    params: [
+      { key: 'axis', label: 'Axis', kind: 'select', options: ['vertical', 'horizontal'] },
+      { key: 'duration', label: 'Duration (frames)', kind: 'number', min: 1, max: 300, step: 1 },
+      EASING_PARAM,
+    ],
+    defaults: { axis: 'vertical', duration: 22, easing: 'easeIn' },
+  },
+  colorAdjust: {
+    label: 'Color Adjust',
+    icon: '🎛️',
+    category: 'style',
+    description: 'Brightness, contrast, saturation, hue, sepia — like a mini color page',
+    params: [
+      { key: 'brightness', label: 'Brightness', kind: 'number', min: 0, max: 3, step: 0.05 },
+      { key: 'contrast', label: 'Contrast', kind: 'number', min: 0, max: 3, step: 0.05 },
+      { key: 'saturate', label: 'Saturation', kind: 'number', min: 0, max: 3, step: 0.05 },
+      { key: 'hueRotate', label: 'Hue rotate (deg)', kind: 'number', min: 0, max: 360, step: 1 },
+      { key: 'sepia', label: 'Sepia', kind: 'number', min: 0, max: 1, step: 0.05 },
+      { key: 'grayscale', label: 'Grayscale', kind: 'number', min: 0, max: 1, step: 0.05 },
+    ],
+    defaults: { brightness: 1, contrast: 1, saturate: 1, hueRotate: 0, sepia: 0, grayscale: 0 },
+  },
+  flicker: {
+    label: 'Flicker',
+    icon: '🕯️',
+    category: 'loop',
+    description: 'Organic brightness flicker (neon signs, candles, old film)',
+    params: [
+      { key: 'amount', label: 'Amount', kind: 'number', min: 0.05, max: 1, step: 0.05 },
+      { key: 'speed', label: 'Speed', kind: 'number', min: 0.5, max: 30, step: 0.5 },
+    ],
+    defaults: { amount: 0.3, speed: 10 },
+  },
+  float: {
+    label: 'Float',
+    icon: '🎈',
+    category: 'loop',
+    description: 'Gentle bobbing up and down',
+    params: [
+      { key: 'distance', label: 'Distance (px)', kind: 'number', min: 1, max: 300, step: 1 },
+      { key: 'speed', label: 'Speed (Hz)', kind: 'number', min: 0.05, max: 4, step: 0.05 },
+    ],
+    defaults: { distance: 18, speed: 0.4 },
+  },
   bounceDrop: {
     label: 'Bounce Drop',
     icon: '🏀',
@@ -404,6 +465,9 @@ export interface ComputedStyle {
   scale: number;
   rotate: number;
   blur: number;
+  /** 3D flips (rendered with perspective) */
+  rotateX: number;
+  rotateY: number;
   /** Additional CSS filter() terms (glow, shadow, rgb split) */
   extraFilters: string[];
   /** clip-path for wipes */
@@ -450,6 +514,8 @@ export const computeEffectStyle = (
     scale: 1,
     rotate: 0,
     blur: 0,
+    rotateX: 0,
+    rotateY: 0,
     extraFilters: [],
     clipPath: null,
     shine: null,
@@ -555,6 +621,45 @@ export const computeEffectStyle = (
         out.translateY += Number(p.panY) * t;
         break;
       }
+      case 'flipIn': {
+        const t = interpolate(frame, [0, Number(p.duration)], [0, 1], {
+          ...clampOpts,
+          easing: getEasing(String(p.easing ?? 'easeOut')),
+        });
+        if (p.axis === 'horizontal') out.rotateX += (1 - t) * 90;
+        else out.rotateY += (1 - t) * 90;
+        out.opacity *= Math.min(1, t * 3);
+        break;
+      }
+      case 'flipOut': {
+        const t = interpolate(frame, [clipDuration - Number(p.duration), clipDuration], [0, 1], {
+          ...clampOpts,
+          easing: getEasing(String(p.easing ?? 'easeIn')),
+        });
+        if (p.axis === 'horizontal') out.rotateX -= t * 90;
+        else out.rotateY -= t * 90;
+        out.opacity *= Math.min(1, (1 - t) * 3);
+        break;
+      }
+      case 'colorAdjust': {
+        const f: string[] = [];
+        if (Number(p.brightness) !== 1) f.push(`brightness(${p.brightness})`);
+        if (Number(p.contrast) !== 1) f.push(`contrast(${p.contrast})`);
+        if (Number(p.saturate) !== 1) f.push(`saturate(${p.saturate})`);
+        if (Number(p.hueRotate) !== 0) f.push(`hue-rotate(${p.hueRotate}deg)`);
+        if (Number(p.sepia) !== 0) f.push(`sepia(${p.sepia})`);
+        if (Number(p.grayscale) !== 0) f.push(`grayscale(${p.grayscale})`);
+        out.extraFilters.push(...f);
+        break;
+      }
+      case 'flicker': {
+        const nz = (noise2D('flicker', (frame / fps) * Number(p.speed), 0) + 1) / 2;
+        out.opacity *= 1 - Number(p.amount) * nz;
+        break;
+      }
+      case 'float':
+        out.translateY += Math.sin((frame / fps) * Number(p.speed) * Math.PI * 2) * Number(p.distance);
+        break;
       case 'bounceDrop': {
         const t = Math.max(0, Math.min(1, frame / Number(p.duration)));
         out.translateY -= (1 - Easing.bounce(t)) * Number(p.height);

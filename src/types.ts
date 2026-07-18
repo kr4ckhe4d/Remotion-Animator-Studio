@@ -40,7 +40,12 @@ export type EffectType =
   | 'drift'
   | 'transform'
   | 'motionPath'
-  | 'bounceDrop';
+  | 'bounceDrop'
+  | 'flipIn'
+  | 'flipOut'
+  | 'colorAdjust'
+  | 'flicker'
+  | 'float';
 
 export interface EffectInstance {
   id: string;
@@ -57,6 +62,8 @@ export interface Clip {
   durationInFrames: number;
   props: Record<string, any>;
   effects: EffectInstance[];
+  /** Clips sharing a groupId select and move as one */
+  groupId?: string;
 }
 
 export interface Track {
