@@ -61,10 +61,13 @@ Add them by **dragging onto a timeline track** (drop position sets the start fra
 
 Drag an effect from the library **onto a clip**, or double-click it to apply to the selected clip. Effects stack — order doesn't matter, they compose. Every parameter is editable in the Inspector.
 
-**Entrances**: Fade In, Slide In, Zoom In, Spring Pop, Spin In, Wipe In, Blur In, Bounce Drop, Typewriter (text), Letter Pop (text)
-**Exits**: Fade Out, Slide Out, Zoom Out, Wipe Out
-**Loops**: Rotate, Pulse, Wiggle, Camera Shake (noise-driven), Light Sweep, Strobe
-**Style / "hard in Resolve"**: Ken Burns, Drift (tickers/clouds), Glow, Drop Shadow, RGB Split (chromatic aberration), Glitch, **Transform**, **Motion Path**
+The library groups effects into **Text · Enter · Exit · Loops & Motion · Style & Color** (and the 🔎 search filters across all of them):
+
+**Text**: Typewriter, Letter Pop
+**Enter**: Fade In, Slide In, Zoom In, Spring Pop, Spin In, Wipe In, Blur In, Bounce Drop, Flip In (3D)
+**Exit**: Fade Out, Slide Out, Zoom Out, Wipe Out, Flip Out (3D)
+**Loops & Motion**: Rotate, Pulse, Wiggle, Camera Shake (noise-driven), Light Sweep, Strobe, Flicker, Float
+**Style & Color**: Ken Burns, Drift (tickers/clouds), Glow, Drop Shadow, RGB Split (chromatic aberration), Glitch, Color Adjust (brightness/contrast/saturation/hue/sepia), **Transform**, **Motion Path**
 
 ### Transform (keyframe-style animation)
 
@@ -154,6 +157,8 @@ Save a project JSON from the editor first.
 ## 8. Selection, copy & paste, layout
 
 - **Multi-select**: ⌘/Ctrl/Shift-click clips in the timeline to add or remove them from the selection. Dragging any selected clip moves the whole group; effects double-clicked in the library apply to every selected clip.
+- **Groups**: with several clips selected, `⌘G` (or the Inspector button) links them — clicking any member selects the whole group, so they move as one. `⇧⌘G` ungroups. Grouped clips show a ⛓ badge. (Trimming stays per-clip.)
+- **Tracks are yours to arrange**: rename a track by typing in its header, reorder layers with the ▲▼ buttons, and drag a clip **up or down** — on release it lands on the track under the cursor (Shift-click a lane still works too).
 - **Copy / paste**: `⌘C` copies the selection, `⌘V` pastes it at the playhead (relative timing preserved, same tracks). `⌘D` duplicates in place, right after each original.
 - **Resizable panes**: drag the dividers between the library, preview, inspector, and timeline. Sizes are remembered.
 - The timeline **ruler stays pinned** while you scroll through many tracks, and track headers stay aligned.

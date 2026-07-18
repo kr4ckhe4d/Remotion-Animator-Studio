@@ -30,15 +30,25 @@ export const Library: React.FC = () => {
     matches(EFFECTS[k].label, EFFECTS[k].description),
   );
 
+  const effectGroups: Array<{ title: string; keys: EffectType[] }> = [
+    { title: 'Text', keys: effectKeys.filter((k) => EFFECTS[k].textOnly) },
+    { title: 'Enter', keys: effectKeys.filter((k) => !EFFECTS[k].textOnly && EFFECTS[k].category === 'in') },
+    { title: 'Exit', keys: effectKeys.filter((k) => !EFFECTS[k].textOnly && EFFECTS[k].category === 'out') },
+    { title: 'Loops & Motion', keys: effectKeys.filter((k) => !EFFECTS[k].textOnly && EFFECTS[k].category === 'loop') },
+    { title: 'Style & Color', keys: effectKeys.filter((k) => !EFFECTS[k].textOnly && EFFECTS[k].category === 'style') },
+  ].filter((g) => g.keys.length > 0);
+
   return (
     <aside className="library">
-      <input
-        className="library-search"
-        type="search"
-        placeholder="🔎 Search presets, elements, effects…"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-      />
+      <div className="library-search-wrap">
+        <input
+          className="library-search"
+          type="search"
+          placeholder="🔎 Search presets, elements, effects…"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+        />
+      </div>
       {presetEntries.length + elementKeys.length + effectKeys.length === 0 ? (
         <div className="library-hint">Nothing matches “{query}”.</div>
       ) : null}
@@ -105,26 +115,31 @@ export const Library: React.FC = () => {
           <div className="library-hint">Drag onto a clip, or double-click to apply to selection</div>
         </>
       ) : null}
-      <div className="library-list">
-        {effectKeys.map((key) => (
-          <div
-            key={key}
-            className="library-item effect-item"
-            draggable
-            title={EFFECTS[key].description}
-            onDragStart={(e) => {
-              e.dataTransfer.setData(EFFECT_MIME, key);
-              e.dataTransfer.effectAllowed = 'copy';
-            }}
-            onDoubleClick={() => {
-              for (const id of selectedClipIds) addEffect(id, key);
-            }}
-          >
-            <span className="library-icon">{EFFECTS[key].icon}</span>
-            <span>{EFFECTS[key].label}</span>
+      {effectGroups.map((group) => (
+        <React.Fragment key={group.title}>
+          <div className="effect-cat">{group.title}</div>
+          <div className="library-list">
+            {group.keys.map((key) => (
+              <div
+                key={key}
+                className="library-item effect-item"
+                draggable
+                title={EFFECTS[key].description}
+                onDragStart={(e) => {
+                  e.dataTransfer.setData(EFFECT_MIME, key);
+                  e.dataTransfer.effectAllowed = 'copy';
+                }}
+                onDoubleClick={() => {
+                  for (const id of selectedClipIds) addEffect(id, key);
+                }}
+              >
+                <span className="library-icon">{EFFECTS[key].icon}</span>
+                <span>{EFFECTS[key].label}</span>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
+        </React.Fragment>
+      ))}
     </aside>
   );
 };
