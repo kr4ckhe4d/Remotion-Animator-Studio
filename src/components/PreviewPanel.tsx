@@ -15,7 +15,25 @@ export const PreviewPanel: React.FC = () => {
 
   const drawingPath = useStore((s) => s.drawingPath);
   const wrapperRef = useRef<HTMLDivElement>(null);
-  const drag = useRef<{ startX: number; startY: number; origX: number; origY: number } | null>(null);
+  const drag = useRef<{
+    startX: number;
+    startY: number;
+    /** original positions of every selected clip that has x/y — groups move together */
+    origins: Array<{ clipId: string; x: number; y: number }>;
+  } | null>(null);
+
+  /**
+   * The Player letterboxes the composition inside the stage, so map screen
+   * coordinates through the fitted-canvas rect, not the stage rect.
+   */
+  const canvasMetrics = (rect: DOMRect) => {
+    const scale = Math.min(rect.width / project.width, rect.height / project.height);
+    return {
+      scale,
+      offsetX: (rect.width - project.width * scale) / 2,
+      offsetY: (rect.height - project.height * scale) / 2,
+    };
+  };
 
   // Keep the store's frame/playing state in sync with the Player
   useEffect(() => {
@@ -34,23 +52,28 @@ export const PreviewPanel: React.FC = () => {
     };
   }, [setCurrentFrame, setPlaying]);
 
-  // Drag the selected element around the canvas
+  // Drag the selected element(s) around the canvas — grouped/multi-selected clips move together
   const onPointerDown = (e: React.PointerEvent) => {
-    if (useStore.getState().drawingPath) return; // clicks belong to the path tool
-    const clip = findClip(useStore.getState().project, selectedClipId);
-    if (!clip || typeof clip.props.x !== 'number') return;
+    const s = useStore.getState();
+    if (s.drawingPath) return; // clicks belong to the path tool
+    const origins = s.selectedClipIds
+      .map((id) => findClip(s.project, id))
+      .filter((c): c is NonNullable<typeof c> => !!c && typeof c.props.x === 'number')
+      .map((c) => ({ clipId: c.id, x: c.props.x as number, y: c.props.y as number }));
+    if (origins.length === 0) return;
     commit();
-    drag.current = { startX: e.clientX, startY: e.clientY, origX: clip.props.x, origY: clip.props.y };
+    drag.current = { startX: e.clientX, startY: e.clientY, origins };
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
   };
   const onPointerMove = (e: React.PointerEvent) => {
-    if (!drag.current || !selectedClipId || !wrapperRef.current) return;
+    if (!drag.current || !wrapperRef.current) return;
     const rect = wrapperRef.current.getBoundingClientRect();
-    const scale = rect.width / project.width;
-    updateClipProps(selectedClipId, {
-      x: Math.round(drag.current.origX + (e.clientX - drag.current.startX) / scale),
-      y: Math.round(drag.current.origY + (e.clientY - drag.current.startY) / scale),
-    });
+    const { scale } = canvasMetrics(rect);
+    const dx = (e.clientX - drag.current.startX) / scale;
+    const dy = (e.clientY - drag.current.startY) / scale;
+    for (const o of drag.current.origins) {
+      updateClipProps(o.clipId, { x: Math.round(o.x + dx), y: Math.round(o.y + dy) });
+    }
   };
   const onPointerUp = () => {
     drag.current = null;
@@ -88,10 +111,10 @@ export const PreviewPanel: React.FC = () => {
             onPointerDown={(e) => {
               e.stopPropagation();
               const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-              const scale = rect.width / project.width;
+              const { scale, offsetX, offsetY } = canvasMetrics(rect);
               useStore.getState().addDrawingPoint({
-                x: (e.clientX - rect.left) / scale,
-                y: (e.clientY - rect.top) / scale,
+                x: (e.clientX - rect.left - offsetX) / scale,
+                y: (e.clientY - rect.top - offsetY) / scale,
               });
             }}
             onDoubleClick={(e) => {
@@ -99,7 +122,8 @@ export const PreviewPanel: React.FC = () => {
               useStore.getState().finishDrawingPath();
             }}
           >
-            <svg viewBox={`0 0 ${project.width} ${project.height}`} preserveAspectRatio="none">
+            {/* "meet" centers exactly like the Player's letterbox, keeping the overlay aligned */}
+            <svg viewBox={`0 0 ${project.width} ${project.height}`} preserveAspectRatio="xMidYMid meet">
               <polyline
                 points={drawingPath.points.map((p) => `${p.x},${p.y}`).join(' ')}
                 fill="none"

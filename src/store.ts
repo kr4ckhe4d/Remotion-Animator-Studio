@@ -29,6 +29,8 @@ interface EditorState {
   future: Project[];
 
   setProject: (patch: Partial<Project>) => void;
+  /** Change canvas size, rescaling every clip's position/size props to match */
+  resizeProject: (width: number, height: number) => void;
   replaceProject: (p: Project) => void;
   /** Load a project without touching undo history (autosave restore) */
   hydrate: (p: Project) => void;
@@ -119,6 +121,38 @@ export const useStore = create<EditorState>((set, get) => ({
   setProject: (patch) => {
     get().commit();
     set((s) => ({ project: { ...s.project, ...patch } }));
+  },
+  resizeProject: (width, height) => {
+    const s = get();
+    if (width === s.project.width && height === s.project.height) return;
+    get().commit();
+    const rx = width / s.project.width;
+    const ry = height / s.project.height;
+    const m = Math.min(rx, ry);
+    const scaleProps = (p: Record<string, any>): Record<string, any> => {
+      const q = { ...p };
+      const scaleKey = (key: string, f: number) => {
+        if (typeof q[key] === 'number') q[key] = Math.round(q[key] * f * 100) / 100;
+      };
+      scaleKey('x', rx);
+      scaleKey('y', ry);
+      scaleKey('width', rx);
+      scaleKey('height', ry);
+      for (const k of ['fontSize', 'size', 'borderRadius', 'letterSpacing', 'amplitude', 'drift']) scaleKey(k, m);
+      scaleKey('wavelength', rx);
+      return q;
+    };
+    set((state) => ({
+      project: {
+        ...state.project,
+        width,
+        height,
+        tracks: state.project.tracks.map((t) => ({
+          ...t,
+          clips: t.clips.map((c) => ({ ...c, props: scaleProps(c.props) })),
+        })),
+      },
+    }));
   },
   replaceProject: (p) => {
     get().commit();
