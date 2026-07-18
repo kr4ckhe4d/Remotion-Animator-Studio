@@ -51,6 +51,11 @@ npm run dev
 | 🫧 Blob | Organic morphing blob (noise-driven) — stack for fluid/splat looks | size, wobble, morph speed, points, seed |
 | 🎊 Particles | Confetti, snow, rain, sparkles, bubbles, embers — deterministic, so preview and render match | type, count, area, size, speed, drift, colors, seed |
 | 🧩 HTML | **Any HTML + inline CSS** — chat mockups, app windows, buttons (HyperFrames-style compositions) | html, size, content scale |
+| 🛣️ Synth Grid | Endless-outrun perspective floor, scrolls forever | line color, cell size, drive speed, glow |
+| 🌅 Neon Sun | Striped retro sun with glow | colors, stripes, glow |
+| 🏙️ Iso City | Generative isometric city that grows building-by-building from a blueprint | grid, tile size, palette, stagger, seed |
+| 🌗 Day/Night Sky | Procedural sky — one full day per clip: sun arc, sunset colors, stars, moon, mountains | size, stars, seed |
+| 🌿 Commit Graph | Animated git history: branch lanes, glowing nodes, typing messages, ± counters | commits JSON, speed, spacing, lane colors |
 | 🖱️ Cursor | Mouse pointer for UI-demo storytelling — pair with Motion Path + Click Pulse | size, fill |
 | 😀 Emoji | Big emoji sticker | char, size |
 | 🎨 Background | Full-frame solid/linear/radial fill | colors, angle |
@@ -68,7 +73,7 @@ The library groups effects into **Text · Enter · Exit · Loops & Motion · Sty
 **Text**: Typewriter, Letter Pop
 **Enter**: Fade In, Slide In, Zoom In, Spring Pop, Spin In, Wipe In, Blur In, Bounce Drop, Flip In (3D)
 **Exit**: Fade Out, Slide Out, Zoom Out, Wipe Out, Flip Out (3D)
-**Loops & Motion**: Rotate, Pulse, Wiggle, Camera Shake (noise-driven), Light Sweep, Strobe, Flicker, Float
+**Loops & Motion**: Rotate, Pulse, Wiggle, Camera Shake (noise-driven), Light Sweep, Strobe, Flicker, Float, **Liquid Wave** (letters ripple on a sine wave — give it an *Audio URL* and the bass drives the amplitude via `@remotion/media-utils`)
 **Style & Color**: Ken Burns, Drift (tickers/clouds), Glow, Drop Shadow, RGB Split (chromatic aberration), Glitch, Color Adjust (brightness/contrast/saturation/hue/sepia), Click Pulse (press-down dip at a chosen frame), **Transform**, **Motion Path**
 
 ### The 🧩 HTML element (in depth)

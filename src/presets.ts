@@ -13,6 +13,8 @@ interface PresetClipSpec {
   props: Record<string, any>;
   // `undefined` allowed because TS widens unions of object literals with optional keys
   effects: Array<{ type: EffectInstance['type']; params?: Record<string, number | string | undefined> }>;
+  /** Paint order within the preset's track — lower renders underneath (default 0) */
+  layer?: number;
 }
 
 export interface PresetDef {
@@ -24,7 +26,9 @@ export interface PresetDef {
 }
 
 export const buildPresetClips = (preset: PresetDef, w: number, h: number, atFrame: number): Clip[] =>
-  preset.build(w, h).map((spec) => ({
+  [...preset.build(w, h)]
+    .sort((a, b) => (a.layer ?? 0) - (b.layer ?? 0))
+    .map((spec) => ({
     id: pid('c'),
     name: spec.name,
     element: spec.element,
@@ -333,6 +337,206 @@ export const PRESETS: Record<string, PresetDef> = {
           { type: 'fadeIn', params: { duration: 20 } },
           { type: 'slideIn', params: { direction: 'bottom', distance: 40, duration: 20 } },
         ],
+      },
+    ],
+  },
+  synthwaveOutrun: {
+    label: 'Synthwave Outrun',
+    icon: '🛣️',
+    description: 'Endless neon grid, striped sun, retro chrome title',
+    build: (w, h) => [
+      {
+        element: 'text',
+        name: 'Retro Title',
+        layer: 3,
+        offset: 20,
+        duration: 220,
+        props: {
+          text: 'OUTRUN',
+          fontSize: Math.round(h * 0.13),
+          color: '#ffe94d',
+          fontFamily: 'Impact, sans-serif',
+          fontWeight: 900,
+          letterSpacing: 14,
+          x: w / 2,
+          y: h * 0.18,
+        },
+        effects: [
+          { type: 'slideIn', params: { direction: 'top', distance: 200, duration: 25, easing: 'overshoot' } },
+          { type: 'rgbSplit', params: { amount: 4, jitter: 1 } },
+          { type: 'glow', params: { color: '#ff3ea5', radius: 24, pulseSpeed: 0.6 } },
+        ],
+      },
+      {
+        element: 'synthGrid',
+        name: 'Grid Floor',
+        layer: 2,
+        offset: 0,
+        duration: 240,
+        props: { width: w, height: Math.round(h * 0.48), x: w / 2, y: h - Math.round(h * 0.24) },
+        effects: [{ type: 'fadeIn', params: { duration: 20 } }],
+      },
+      {
+        element: 'neonSun',
+        name: 'Neon Sun',
+        layer: 1,
+        offset: 0,
+        duration: 240,
+        props: { size: Math.round(h * 0.58), x: w / 2, y: h * 0.38 },
+        effects: [
+          { type: 'fadeIn', params: { duration: 25 } },
+          { type: 'transform', params: { start: 0, duration: 240, fromY: 60, toY: 0, fromX: 0, toX: 0, fromScale: 1, toScale: 1, fromRotate: 0, toRotate: 0, fromOpacity: 1, toOpacity: 1, easing: 'easeOut' } },
+        ],
+      },
+      {
+        element: 'background',
+        name: 'Dusk BG',
+        offset: 0,
+        duration: 240,
+        props: { fillType: 'linear', colorA: '#1c0533', colorB: '#0b0114', angle: 180 },
+        effects: [],
+      },
+    ],
+  },
+  liquidType: {
+    label: 'Liquid Type',
+    icon: '🌊',
+    description: 'Kinetic wave typography — add an audio URL to make it dance to the music',
+    build: (w, h) => [
+      {
+        element: 'text',
+        name: 'Liquid Title',
+        offset: 0,
+        duration: 180,
+        props: {
+          text: 'FEEL THE WAVE',
+          fontSize: Math.round(h * 0.1),
+          color: '#35c4ff',
+          fontFamily: 'Impact, sans-serif',
+          fontWeight: 900,
+          letterSpacing: 8,
+          x: w / 2,
+          y: h * 0.45,
+        },
+        effects: [
+          { type: 'letterWave', params: { amplitude: Math.round(h * 0.03), wavelength: 5, speed: 1.2 } },
+          { type: 'glow', params: { color: '#35c4ff', radius: 26, pulseSpeed: 0 } },
+          { type: 'fadeIn', params: { duration: 15 } },
+        ],
+      },
+      {
+        element: 'text',
+        name: 'Liquid Sub',
+        offset: 20,
+        duration: 160,
+        props: {
+          text: 'set an Audio URL on the Liquid Wave effect →',
+          fontSize: Math.round(h * 0.032),
+          color: '#8b90a0',
+          fontFamily: 'Helvetica, Arial, sans-serif',
+          fontWeight: 400,
+          x: w / 2,
+          y: h * 0.62,
+        },
+        effects: [{ type: 'fadeIn', params: { duration: 20 } }],
+      },
+    ],
+  },
+  isoCityGrowth: {
+    label: 'Iso City Growth',
+    icon: '🏙️',
+    description: 'Isometric skyline assembling out of a digital blueprint',
+    build: (w, h) => [
+      {
+        element: 'isoCity',
+        name: 'City',
+        layer: 1,
+        offset: 0,
+        duration: 210,
+        props: { x: w / 2, y: h * 0.52, tileSize: Math.round(h * 0.065) },
+        effects: [{ type: 'fadeIn', params: { duration: 10 } }],
+      },
+      {
+        element: 'text',
+        name: 'City Title',
+        layer: 2,
+        offset: 130,
+        duration: 80,
+        props: {
+          text: 'BUILD FAST',
+          fontSize: Math.round(h * 0.07),
+          color: '#ffffff',
+          fontFamily: 'Helvetica, Arial, sans-serif',
+          fontWeight: 900,
+          letterSpacing: 6,
+          x: w / 2,
+          y: h * 0.9,
+        },
+        effects: [{ type: 'letterPop', params: { stagger: 1.5, duration: 14, distance: 40 } }],
+      },
+      {
+        element: 'background',
+        name: 'Blueprint BG',
+        offset: 0,
+        duration: 210,
+        props: { fillType: 'radial', colorA: '#12172b', colorB: '#07090f', angle: 0 },
+        effects: [],
+      },
+    ],
+  },
+  dayNight: {
+    label: 'Day / Night Cycle',
+    icon: '🌗',
+    description: 'A full procedural day — sunset, stars, sunrise — over one clip',
+    build: (w, h) => [
+      {
+        element: 'skyCycle',
+        name: 'Sky',
+        offset: 0,
+        duration: 300,
+        props: { width: w, height: h, x: w / 2, y: h / 2 },
+        effects: [],
+      },
+    ],
+  },
+  commitTimeline: {
+    label: 'Commit Timeline',
+    icon: '🌿',
+    description: 'Animated git history with glowing nodes and typing messages',
+    build: (w, h) => [
+      {
+        element: 'commitGraph',
+        name: 'History',
+        layer: 1,
+        offset: 15,
+        duration: 285,
+        props: { width: Math.round(w * 0.9), height: Math.round(h * 0.5), x: w / 2, y: h * 0.52 },
+        effects: [{ type: 'fadeIn', params: { duration: 12 } }],
+      },
+      {
+        element: 'text',
+        name: 'Repo Title',
+        layer: 2,
+        offset: 0,
+        duration: 300,
+        props: {
+          text: '~/product — git log',
+          fontSize: Math.round(h * 0.038),
+          color: '#6ee7a8',
+          fontFamily: '"Courier New", monospace',
+          fontWeight: 700,
+          x: w / 2,
+          y: h * 0.12,
+        },
+        effects: [{ type: 'typewriter', params: { charsPerSecond: 25 } }],
+      },
+      {
+        element: 'background',
+        name: 'Terminal BG',
+        offset: 0,
+        duration: 300,
+        props: { fillType: 'solid', colorA: '#0a0d12', colorB: '#0a0d12', angle: 0 },
+        effects: [],
       },
     ],
   },
