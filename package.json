@@ -1,0 +1,35 @@
+{
+  "name": "remotion-animator",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently -k -n web,render -c cyan,magenta \"vite\" \"node server.mjs\"",
+    "dev:web": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "render": "node render.mjs",
+    "docs:gifs": "node docs-gifs.mjs"
+  },
+  "dependencies": {
+    "@remotion/gif": "^4.0.490",
+    "@remotion/noise": "^4.0.490",
+    "@remotion/paths": "^4.0.490",
+    "@remotion/player": "^4.0.490",
+    "@remotion/shapes": "^4.0.490",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "remotion": "^4.0.490",
+    "zustand": "^5.0.3"
+  },
+  "devDependencies": {
+    "@remotion/bundler": "^4.0.490",
+    "@remotion/renderer": "^4.0.490",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "concurrently": "^10.0.3",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.11"
+  }
+}
