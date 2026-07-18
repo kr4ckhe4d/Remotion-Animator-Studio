@@ -4,12 +4,33 @@ import { ELEMENTS } from '../elements';
 import { findClip, useStore } from '../store';
 import type { ParamDef } from '../types';
 
+/** Very small HTML pretty-printer for the 🧩 HTML element's textarea. */
+const formatHtml = (src: string): string => {
+  const tokens = src
+    .replace(/>\s+</g, '><')
+    .split(/(<[^>]+>)/g)
+    .map((t) => t.trim())
+    .filter(Boolean);
+  const voidTag = /^<(br|img|hr|input|meta|link|source|area|col|embed|track|wbr)[\s/>]/i;
+  let depth = 0;
+  const out: string[] = [];
+  for (const tok of tokens) {
+    const isTag = tok.startsWith('<');
+    const isClose = /^<\//.test(tok);
+    const isSelfClosing = /\/>$/.test(tok) || voidTag.test(tok);
+    if (isClose) depth = Math.max(0, depth - 1);
+    out.push('  '.repeat(depth) + tok);
+    if (isTag && !isClose && !isSelfClosing && !tok.startsWith('<!')) depth++;
+  }
+  return out.join('\n');
+};
+
 /** Small graph of the selected animation curve. */
-const EasingPreview: React.FC<{ name: string }> = ({ name }) => {
+const EasingPreview: React.FC<{ name: string; bez?: string }> = ({ name, bez }) => {
   const W = 120;
   const H = 56;
   const pad = 6;
-  const fn = getEasing(name);
+  const fn = getEasing(name, bez);
   const pts = Array.from({ length: 41 }, (_, i) => {
     const t = i / 40;
     const v = fn(t);
@@ -274,14 +295,26 @@ export const Inspector: React.FC = () => {
             onCommit={commit}
             onChange={(v) => updateClipProps(clip.id, { [def.key]: v })}
           />
-          {def.key === 'src' && ['image', 'gif'].includes(clip.element) ? (
+          {(def.key === 'src' && ['image', 'gif'].includes(clip.element)) ||
+          (def.key === 'imageSrc' && clip.element === 'particles') ? (
             <FileUpload
               accept={clip.element === 'gif' ? 'image/gif' : 'image/*'}
               onLoad={(dataUrl) => {
                 commit();
-                updateClipProps(clip.id, { src: dataUrl });
+                updateClipProps(clip.id, { [def.key]: dataUrl });
               }}
             />
+          ) : null}
+          {def.key === 'html' && clip.element === 'html' ? (
+            <button
+              className="btn btn-small"
+              onClick={() => {
+                commit();
+                updateClipProps(clip.id, { html: formatHtml(String(clip.props.html ?? '')) });
+              }}
+            >
+              ✨ Format HTML
+            </button>
           ) : null}
         </React.Fragment>
       ))}
@@ -304,19 +337,29 @@ export const Inspector: React.FC = () => {
                   ×
                 </button>
               </div>
-              {fxDef.params.map((def) => (
-                <React.Fragment key={def.key}>
-                  <ParamControl
-                    def={def}
-                    value={fx.params[def.key] ?? fxDef.defaults[def.key]}
-                    onCommit={commit}
-                    onChange={(v) => updateEffectParams(clip.id, fx.id, { [def.key]: v })}
-                  />
-                  {def.key === 'easing' ? (
-                    <EasingPreview name={String(fx.params.easing ?? fxDef.defaults.easing ?? 'easeOut')} />
-                  ) : null}
-                </React.Fragment>
-              ))}
+              {fxDef.params.map((def) => {
+                // frame-based params can never exceed the clip's own length
+                const framed =
+                  def.kind === 'number' && ['start', 'duration', 'at'].includes(def.key)
+                    ? { ...def, max: clip.durationInFrames }
+                    : def;
+                return (
+                  <React.Fragment key={def.key}>
+                    <ParamControl
+                      def={framed}
+                      value={fx.params[def.key] ?? fxDef.defaults[def.key]}
+                      onCommit={commit}
+                      onChange={(v) => updateEffectParams(clip.id, fx.id, { [def.key]: v })}
+                    />
+                    {def.key === 'easing' ? (
+                      <EasingPreview
+                        name={String(fx.params.easing ?? fxDef.defaults.easing ?? 'easeOut')}
+                        bez={String(fx.params.bez ?? fxDef.defaults.bez ?? '')}
+                      />
+                    ) : null}
+                  </React.Fragment>
+                );
+              })}
               {fx.type === 'motionPath' ? (
                 <button
                   className="btn btn-small"

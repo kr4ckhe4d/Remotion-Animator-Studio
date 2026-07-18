@@ -14,8 +14,20 @@ export const EASING_NAMES = [
   'overshoot',
 ] as const;
 
-export const getEasing = (name: string): ((t: number) => number) => {
+export const getEasing = (name: string, customBezier?: string): ((t: number) => number) => {
   switch (name) {
+    case 'custom': {
+      // "x1, y1, x2, y2" like CSS cubic-bezier; x values clamped to [0,1]
+      const nums = String(customBezier ?? '')
+        .split(/[,\s]+/)
+        .map(Number)
+        .filter((v) => Number.isFinite(v));
+      if (nums.length === 4) {
+        const [x1, y1, x2, y2] = nums;
+        return Easing.bezier(Math.min(1, Math.max(0, x1)), y1, Math.min(1, Math.max(0, x2)), y2);
+      }
+      return Easing.inOut(Easing.cubic);
+    }
     case 'linear':
       return Easing.linear;
     case 'easeIn':
@@ -323,7 +335,8 @@ export const EFFECTS: Record<EffectType, EffectDef> = {
       { key: 'toRotate', label: 'To rotation', kind: 'number', min: -720, max: 720, step: 1 },
       { key: 'fromOpacity', label: 'From opacity', kind: 'number', min: 0, max: 1, step: 0.05 },
       { key: 'toOpacity', label: 'To opacity', kind: 'number', min: 0, max: 1, step: 0.05 },
-      EASING_PARAM,
+      { key: 'easing', label: 'Curve', kind: 'select', options: [...EASING_NAMES, 'custom'] },
+      { key: 'bez', label: 'Custom curve — x1, y1, x2, y2 (cubic-bezier)', kind: 'text' },
     ],
     defaults: {
       start: 0,
@@ -339,6 +352,7 @@ export const EFFECTS: Record<EffectType, EffectDef> = {
       fromOpacity: 1,
       toOpacity: 1,
       easing: 'easeInOut',
+      bez: '0.34, 1.56, 0.64, 1',
     },
   },
   motionPath: {
@@ -687,7 +701,7 @@ export const computeEffectStyle = (
       case 'transform': {
         const t = interpolate(frame, [Number(p.start), Number(p.start) + Number(p.duration)], [0, 1], {
           ...clampOpts,
-          easing: getEasing(String(p.easing ?? 'easeInOut')),
+          easing: getEasing(String(p.easing ?? 'easeInOut'), String(p.bez ?? '')),
         });
         const lerp = (a: number, b: number) => a + (b - a) * t;
         out.translateX += lerp(Number(p.fromX), Number(p.toX));

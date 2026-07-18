@@ -228,7 +228,63 @@ const ParticlesContent: React.FC<{ clip: Clip }> = ({ clip }) => {
     const sway = Math.sin(t * (0.5 + r4 * 1.5) * Math.PI * 2 + r2 * 10) * drift;
 
     let node: React.ReactNode = null;
-    if (kind === 'confetti') {
+    if (p.imageSrc) {
+      // custom PNG/SVG particles — motion style follows the chosen type
+      const rising = kind === 'bubbles' || kind === 'embers';
+      const still = kind === 'scatter' || kind === 'sparkles';
+      const fallSpeed = kind === 'rain' ? 0.9 : kind === 'snow' ? 0.12 : 0.25;
+      let x: number;
+      let y: number;
+      if (still) {
+        x = r1 * W;
+        y = r2 * H;
+      } else {
+        const yy = mod(r2 * H + t * speed * H * fallSpeed, H + s * 2) - s;
+        y = rising ? H - yy : yy;
+        x = mod(r1 * W + sway, W);
+      }
+      const rot =
+        kind === 'confetti'
+          ? r4 * 360 + t * (r1 > 0.5 ? 1 : -1) * 360 * speed
+          : kind === 'scatter'
+            ? (r4 - 0.5) * 70
+            : 0;
+      const tw = kind === 'sparkles' ? Math.max(0.15, Math.sin(t * (0.5 + r4 * 2) * Math.PI * 2 + r2 * 20)) : 1;
+      node = (
+        <Img
+          key={i}
+          src={p.imageSrc}
+          style={{
+            position: 'absolute',
+            left: x,
+            top: y,
+            width: s,
+            height: s,
+            objectFit: 'contain',
+            transform: `rotate(${rot}deg)`,
+            opacity: tw,
+          }}
+        />
+      );
+    } else if (kind === 'scatter') {
+      // static decorative scatter — stars in a sky, sprinkles on a donut
+      node = (
+        <div
+          key={i}
+          style={{
+            position: 'absolute',
+            left: r1 * W,
+            top: r2 * H,
+            width: s,
+            height: s * 0.4,
+            background: color,
+            borderRadius: s,
+            transform: `rotate(${Math.round((r4 - 0.5) * 180)}deg)`,
+            opacity: 0.6 + r3 * 0.4,
+          }}
+        />
+      );
+    } else if (kind === 'confetti') {
       const y = mod(r2 * H + t * speed * H * 0.25, H + s * 2) - s;
       const x = mod(r1 * W + sway, W);
       const rot = r4 * 360 + t * (r1 > 0.5 ? 1 : -1) * 360 * speed;
