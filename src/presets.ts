@@ -343,12 +343,109 @@ export const PRESETS: Record<string, PresetDef> = {
   synthwaveOutrun: {
     label: 'Synthwave Outrun',
     icon: '🛣️',
-    description: 'Endless neon grid, striped sun, retro chrome title',
+    description: 'Driving through a neon city — car, lit skyline, striped sun, endless grid',
     build: (w, h) => [
+      {
+        element: 'particles',
+        name: 'Stars',
+        layer: 1,
+        offset: 0,
+        duration: 240,
+        props: {
+          kind: 'sparkles',
+          count: 70,
+          width: w,
+          height: Math.round(h * 0.45),
+          size: 7,
+          speed: 1,
+          drift: 0,
+          colors: '#ffffff,#b9a8ff',
+          x: w / 2,
+          y: h * 0.22,
+        },
+        effects: [],
+      },
+      {
+        element: 'html',
+        name: 'City Skyline',
+        layer: 3,
+        offset: 0,
+        duration: 240,
+        props: {
+          html: (() => {
+            const buildings = [
+              [7, 62], [5, 88], [8, 48], [6, 100], [9, 70], [5, 55], [7, 92], [6, 40], [8, 78], [5, 60], [7, 50], [6, 84],
+            ];
+            const divs = buildings
+              .map(
+                ([bw, bh]) => `
+    <div style="width:${bw}%;height:${bh}%;background:#170f2e;border-top:2px solid #3b2a6b;position:relative">
+      <div style="position:absolute;inset:6% 12%;background-image:repeating-linear-gradient(to right,#170f2e 0 5px,transparent 5px 13px),repeating-linear-gradient(to bottom,rgba(255,209,102,.85) 0 4px,transparent 4px 15px)"></div>
+    </div>`,
+              )
+              .join('');
+            return `<div style="width:100%;height:100%;display:flex;align-items:flex-end;gap:1.2%">${divs}</div>`;
+          })(),
+          width: w,
+          height: Math.round(h * 0.3),
+          contentScale: 1,
+          opacity: 1,
+          x: w / 2,
+          y: Math.round(h * 0.52 - h * 0.15),
+        },
+        effects: [
+          { type: 'fadeIn', params: { duration: 20 } },
+          { type: 'flicker', params: { amount: 0.06, speed: 7 } },
+        ],
+      },
+      {
+        element: 'html',
+        name: 'Car',
+        layer: 5,
+        offset: 0,
+        duration: 240,
+        props: {
+          html: `
+<svg viewBox="0 0 400 250" style="width:100%;height:100%;filter:drop-shadow(0 0 22px rgba(255,62,165,.65))">
+  <defs>
+    <linearGradient id="carbody" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffd166"/>
+      <stop offset="45%" stop-color="#ff3ea5"/>
+      <stop offset="100%" stop-color="#5b2c93"/>
+    </linearGradient>
+    <linearGradient id="carroof" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#b13a86"/>
+      <stop offset="100%" stop-color="#4a2378"/>
+    </linearGradient>
+  </defs>
+  <ellipse cx="200" cy="238" rx="165" ry="10" fill="#ff3ea5" opacity="0.35"/>
+  <rect x="78" y="196" width="44" height="34" rx="7" fill="#0c0916"/>
+  <rect x="278" y="196" width="44" height="34" rx="7" fill="#0c0916"/>
+  <path d="M112 100 L134 52 Q139 42 150 42 L250 42 Q261 42 266 52 L288 100 Z" fill="url(#carroof)"/>
+  <path d="M126 96 L143 58 Q146 52 153 52 L247 52 Q254 52 257 58 L274 96 Z" fill="#120b24"/>
+  <path d="M70 138 Q70 104 102 100 L298 100 Q330 104 330 138 L336 192 Q337 210 316 210 L84 210 Q63 210 64 192 Z" fill="url(#carbody)"/>
+  <rect x="86" y="150" width="228" height="13" rx="6.5" fill="#ffffff" style="filter:drop-shadow(0 0 8px #fff)"/>
+  <circle cx="150" cy="196" r="7" fill="#1a1030" stroke="#ffd166" stroke-width="2"/>
+  <circle cx="170" cy="196" r="7" fill="#1a1030" stroke="#ffd166" stroke-width="2"/>
+  <circle cx="230" cy="196" r="7" fill="#1a1030" stroke="#ffd166" stroke-width="2"/>
+  <circle cx="250" cy="196" r="7" fill="#1a1030" stroke="#ffd166" stroke-width="2"/>
+</svg>`,
+          width: Math.round(h * 0.42),
+          height: Math.round(h * 0.27),
+          contentScale: 1,
+          opacity: 1,
+          x: w / 2,
+          y: Math.round(h * 0.76),
+        },
+        effects: [
+          { type: 'slideIn', params: { direction: 'bottom', distance: 260, duration: 30, easing: 'easeOut' } },
+          { type: 'float', params: { distance: 5, speed: 1.4 } },
+        ],
+      },
       {
         element: 'text',
         name: 'Retro Title',
-        layer: 3,
+        layer: 6,
         offset: 20,
         duration: 220,
         props: {
@@ -370,7 +467,7 @@ export const PRESETS: Record<string, PresetDef> = {
       {
         element: 'synthGrid',
         name: 'Grid Floor',
-        layer: 2,
+        layer: 4,
         offset: 0,
         duration: 240,
         props: { width: w, height: Math.round(h * 0.48), x: w / 2, y: h - Math.round(h * 0.24) },
@@ -379,7 +476,7 @@ export const PRESETS: Record<string, PresetDef> = {
       {
         element: 'neonSun',
         name: 'Neon Sun',
-        layer: 1,
+        layer: 2,
         offset: 0,
         duration: 240,
         props: { size: Math.round(h * 0.58), x: w / 2, y: h * 0.38 },

@@ -22,8 +22,13 @@ interface EditorState {
   currentFrame: number;
   playing: boolean;
   muted: boolean;
-  /** Active "draw motion path on canvas" session */
-  drawingPath: { clipId: string; effectId: string; points: Array<{ x: number; y: number }> } | null;
+  /** Active "draw on canvas" session — a motion path for an effect, or waypoints for a Story Trail */
+  drawingPath: {
+    clipId: string;
+    /** set when drawing a motion path for this effect; absent for trail waypoints */
+    effectId?: string;
+    points: Array<{ x: number; y: number }>;
+  } | null;
   pixelsPerFrame: number;
   history: Project[];
   future: Project[];
@@ -66,6 +71,7 @@ interface EditorState {
   updateEffectParams: (clipId: string, effectId: string, patch: Record<string, any>) => void;
 
   startDrawingPath: (clipId: string, effectId: string) => void;
+  startDrawingTrail: (clipId: string) => void;
   addDrawingPoint: (pt: { x: number; y: number }) => void;
   cancelDrawingPath: () => void;
   /** Commit the drawn polyline: element moves to the first point, path becomes relative. */
@@ -170,8 +176,12 @@ export const useStore = create<EditorState>((set, get) => ({
         ...c,
         durationInFrames: Math.max(2, Math.min(c.durationInFrames, durationInFrames - c.from)),
       }));
-      const track: Track = { id: uid('t'), name: preset.label, clips };
-      return { project: { ...s.project, tracks: [track, ...s.project.tracks] } };
+      // one track per clip so nothing hides in a shared lane;
+      // buildPresetClips returns bottom→top, and the top layer belongs on the first track
+      const newTracks: Track[] = [...clips]
+        .reverse()
+        .map((clip) => ({ id: uid('t'), name: clip.name, clips: [clip] }));
+      return { project: { ...s.project, tracks: [...newTracks, ...s.project.tracks] } };
     });
   },
   selectClip: (id, additive = false) =>
@@ -392,6 +402,7 @@ export const useStore = create<EditorState>((set, get) => ({
 
   startDrawingPath: (clipId, effectId) =>
     set({ drawingPath: { clipId, effectId, points: [] }, selectedClipIds: [clipId] }),
+  startDrawingTrail: (clipId) => set({ drawingPath: { clipId, points: [] }, selectedClipIds: [clipId] }),
   addDrawingPoint: (pt) =>
     set((s) => (s.drawingPath ? { drawingPath: { ...s.drawingPath, points: [...s.drawingPath.points, pt] } } : s)),
   cancelDrawingPath: () => set({ drawingPath: null }),
@@ -405,18 +416,26 @@ export const useStore = create<EditorState>((set, get) => ({
     }
     get().commit();
     const [first, ...rest] = d.points;
-    const path =
-      `M 0 0 ` +
-      rest.map((pt) => `L ${Math.round(pt.x - first.x)} ${Math.round(pt.y - first.y)}`).join(' ');
+    const rel = rest.map((pt) => ({ x: Math.round(pt.x - first.x), y: Math.round(pt.y - first.y) }));
     set((state) => ({
       project: mapClips(state.project, d.clipId, (c) => ({
         ...c,
-        // move the element to the first drawn point so the path starts where you clicked
-        props:
-          typeof c.props.x === 'number'
-            ? { ...c.props, x: Math.round(first.x), y: Math.round(first.y) }
-            : c.props,
-        effects: c.effects.map((e) => (e.id === d.effectId ? { ...e, params: { ...e.params, path } } : e)),
+        // move the element to the first drawn point so the route starts where you clicked
+        props: {
+          ...c.props,
+          ...(typeof c.props.x === 'number' ? { x: Math.round(first.x), y: Math.round(first.y) } : {}),
+          ...(d.effectId === undefined
+            ? { points: ['0,0', ...rel.map((pt) => `${pt.x},${pt.y}`)].join('; ') }
+            : {}),
+        },
+        effects:
+          d.effectId === undefined
+            ? c.effects
+            : c.effects.map((e) =>
+                e.id === d.effectId
+                  ? { ...e, params: { ...e.params, path: `M 0 0 ` + rel.map((pt) => `L ${pt.x} ${pt.y}`).join(' ') } }
+                  : e,
+              ),
       })),
       drawingPath: null,
     }));
