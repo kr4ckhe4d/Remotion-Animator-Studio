@@ -58,7 +58,7 @@ npm run dev
 | 🌞 Sun & Moon | Sun/moon arcing on the same day-cycle timing (pairs with the sky) | size, colors |
 | ⛰️ Ridge | One seeded mountain silhouette; fill blends day→night over the clip — stack several, delete, recolor | peaks, amplitude, day/night colors, seed |
 | 🌿 Commit Graph | Animated git history: branch lanes, glowing nodes, typing messages, ± counters | commits JSON, speed, spacing, lane colors |
-| 📍 Story Trail | Glowing waypoint route — nodes pop one by one. Waypoints are JSON: `[{"x","y","label?","color?"}…]` where `color` tints that node and its outgoing segment. **Draw the route on the canvas** (✏️ button) and your labels/colors are preserved | waypoints JSON, default colors, speed, curved |
+| 📍 Story Trail | Glowing waypoint route — nodes pop one by one. Waypoints are JSON: `[{"x","y","label?","color?","from?"}…]` — `color` tints the node and its incoming segment, and `from` **branches** off any earlier node by index (`{"label":"Pivot","from":2}`). **Draw the route on the canvas** (✏️ button) and your labels/colors are preserved | waypoints JSON, default colors, speed, curved |
 | 🖱️ Cursor | Mouse pointer for UI-demo storytelling — pair with Motion Path + Click Pulse | size, fill |
 | 😀 Emoji | Big emoji sticker | char, size |
 | 🎨 Background | Full-frame solid/linear/radial fill | colors, angle |

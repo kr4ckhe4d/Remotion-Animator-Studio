@@ -190,7 +190,19 @@ export const Timeline: React.FC = () => {
 
   const scrubRef = useRef<HTMLDivElement>(null);
   const headersRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
   const width = project.durationInFrames * ppf;
+
+  // while playing, page the timeline forward when the playhead leaves the visible area
+  const playing = useStore((s) => s.playing);
+  React.useEffect(() => {
+    if (!playing || !scrollRef.current) return;
+    const el = scrollRef.current;
+    const x = currentFrame * ppf;
+    if (x > el.scrollLeft + el.clientWidth - 30 || x < el.scrollLeft) {
+      el.scrollLeft = Math.max(0, x - el.clientWidth * 0.12);
+    }
+  }, [currentFrame, ppf, playing]);
 
   const seekFromEvent = (e: React.PointerEvent) => {
     if (!scrubRef.current) return;
@@ -271,6 +283,7 @@ export const Timeline: React.FC = () => {
 
         <div
           className="timeline-scroll"
+          ref={scrollRef}
           onScroll={(e) => {
             // keep the header column aligned with vertical scrolling
             if (headersRef.current) headersRef.current.scrollTop = (e.target as HTMLElement).scrollTop;

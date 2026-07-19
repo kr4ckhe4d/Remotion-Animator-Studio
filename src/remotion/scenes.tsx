@@ -330,6 +330,8 @@ interface TrailPoint {
   label?: string;
   /** colors this node and the link leaving it; falls back to the element defaults */
   color?: string;
+  /** index of the waypoint this one branches from (default: the previous one) */
+  from?: number;
 }
 
 export const NodeTrail: React.FC<{ clip: Clip }> = ({ clip }) => {
@@ -342,7 +344,13 @@ export const NodeTrail: React.FC<{ clip: Clip }> = ({ clip }) => {
     if (Array.isArray(parsed)) {
       pts = parsed
         .filter((q) => q && typeof q === 'object')
-        .map((q) => ({ x: Number(q.x) || 0, y: Number(q.y) || 0, label: q.label, color: q.color }));
+        .map((q) => ({
+          x: Number(q.x) || 0,
+          y: Number(q.y) || 0,
+          label: q.label,
+          color: q.color,
+          from: q.from === undefined ? undefined : Number(q.from),
+        }));
     }
   } catch {
     /* invalid JSON — draw nothing until it parses */
@@ -369,10 +377,12 @@ export const NodeTrail: React.FC<{ clip: Clip }> = ({ clip }) => {
     const y = pt.y - minY;
     const nodeCol = pt.color || String(p.nodeColor);
     if (i > 0) {
-      const prev = pts[i - 1];
+      // links go to the previous waypoint unless `from` points elsewhere — that's a branch
+      const parentIdx = pt.from !== undefined && pt.from >= 0 && pt.from < i ? pt.from : i - 1;
+      const prev = pts[parentIdx];
       const px = prev.x - minX;
       const py = prev.y - minY;
-      const linkCol = prev.color || String(p.color);
+      const linkCol = pt.color || prev.color || String(p.color);
       const seg = interpolate(progress - (i - 1), [0, 1], [0, 1], {
         extrapolateLeft: 'clamp',
         extrapolateRight: 'clamp',

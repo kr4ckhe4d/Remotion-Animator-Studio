@@ -517,7 +517,7 @@ export const ELEMENTS: Record<ElementType, ElementDef> = {
     icon: '📍',
     description: 'Glowing waypoint trail — nodes pop along a route you draw on the canvas',
     defaults: {
-      data: '[{"x":0,"y":0,"label":"Start"},{"x":320,"y":-140,"label":"Research","color":"#35c4ff"},{"x":700,"y":60,"label":"Prototype"},{"x":1040,"y":-80,"label":"Launch","color":"#ffd166"},{"x":1380,"y":40,"label":"Scale"}]',
+      data: '[{"x":0,"y":0,"label":"Start"},{"x":320,"y":-140,"label":"Research","color":"#35c4ff"},{"x":700,"y":60,"label":"Prototype"},{"x":1040,"y":-80,"label":"Launch","color":"#ffd166"},{"x":700,"y":260,"label":"Pivot","color":"#ff5c6c","from":2},{"x":1380,"y":40,"label":"Scale","from":3}]',
       color: '#6ee7a8',
       nodeColor: '#7c5cff',
       speed: 0.8,
@@ -533,7 +533,7 @@ export const ELEMENTS: Record<ElementType, ElementDef> = {
     params: [
       {
         key: 'data',
-        label: 'Waypoints JSON — [{x, y, label?, color?}…]; color tints the node + its outgoing link',
+        label: 'Waypoints JSON — [{x, y, label?, color?, from?}…]; "from" branches off an earlier node (by index)',
         kind: 'textarea',
       },
       { key: 'color', label: 'Default line color', kind: 'color' },
