@@ -425,7 +425,27 @@ export const useStore = create<EditorState>((set, get) => ({
           ...c.props,
           ...(typeof c.props.x === 'number' ? { x: Math.round(first.x), y: Math.round(first.y) } : {}),
           ...(d.effectId === undefined
-            ? { points: ['0,0', ...rel.map((pt) => `${pt.x},${pt.y}`)].join('; ') }
+            ? {
+                data: (() => {
+                  // keep labels/colors from the existing JSON by index, replace positions
+                  let old: any[] = [];
+                  try {
+                    const parsed = JSON.parse(String(c.props.data));
+                    if (Array.isArray(parsed)) old = parsed;
+                  } catch {
+                    /* stale JSON — start fresh */
+                  }
+                  const pts = [{ x: 0, y: 0 }, ...rel];
+                  return JSON.stringify(
+                    pts.map((pt, i) => ({
+                      x: pt.x,
+                      y: pt.y,
+                      ...(old[i]?.label !== undefined ? { label: old[i].label } : {}),
+                      ...(old[i]?.color !== undefined ? { color: old[i].color } : {}),
+                    })),
+                  );
+                })(),
+              }
             : {}),
         },
         effects:

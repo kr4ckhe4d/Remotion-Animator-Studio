@@ -102,7 +102,7 @@
       "name": "Layer 7",
       "clips": [
         {
-          "id": "c-mrr3a5ar-13",
+          "id": "c-mrr3qo51-13",
           "name": "Retro Title",
           "element": "text",
           "from": 200,
@@ -119,7 +119,7 @@
           },
           "effects": [
             {
-              "id": "e-mrr3a5ar-14",
+              "id": "e-mrr3qo51-14",
               "type": "slideIn",
               "params": {
                 "direction": "top",
@@ -129,7 +129,7 @@
               }
             },
             {
-              "id": "e-mrr3a5ar-15",
+              "id": "e-mrr3qo51-15",
               "type": "rgbSplit",
               "params": {
                 "amount": 4,
@@ -137,7 +137,7 @@
               }
             },
             {
-              "id": "e-mrr3a5ar-16",
+              "id": "e-mrr3qo51-16",
               "type": "glow",
               "params": {
                 "color": "#ff3ea5",
@@ -154,7 +154,7 @@
       "name": "Layer 6",
       "clips": [
         {
-          "id": "c-mrr3a5ar-10",
+          "id": "c-mrr3qo51-10",
           "name": "Car",
           "element": "html",
           "from": 180,
@@ -170,7 +170,7 @@
           },
           "effects": [
             {
-              "id": "e-mrr3a5ar-11",
+              "id": "e-mrr3qo51-11",
               "type": "slideIn",
               "params": {
                 "direction": "bottom",
@@ -180,11 +180,54 @@
               }
             },
             {
-              "id": "e-mrr3a5ar-12",
+              "id": "e-mrr3qo51-12",
               "type": "float",
               "params": {
                 "distance": 5,
                 "speed": 1.4
+              }
+            }
+          ]
+        },
+        {
+          "id": "c29",
+          "name": "Procedural day / night cycle label",
+          "element": "text",
+          "from": 614,
+          "durationInFrames": 276,
+          "props": {
+            "text": "Procedural day / night cycle",
+            "fontSize": 64,
+            "color": "#ffffff",
+            "fontFamily": "Helvetica, Arial, sans-serif",
+            "fontWeight": 700,
+            "letterSpacing": 2,
+            "x": 752.96,
+            "y": 1976.4
+          },
+          "effects": [
+            {
+              "id": "e30",
+              "type": "slideIn",
+              "params": {
+                "direction": "left",
+                "distance": 160,
+                "duration": 16,
+                "easing": "easeOut"
+              }
+            },
+            {
+              "id": "e31",
+              "type": "fadeIn",
+              "params": {
+                "duration": 10
+              }
+            },
+            {
+              "id": "e32",
+              "type": "fadeOut",
+              "params": {
+                "duration": 14
               }
             }
           ]
@@ -196,7 +239,7 @@
       "name": "Layer 5",
       "clips": [
         {
-          "id": "c-mrr3a5ar-8",
+          "id": "c-mrr3qo51-8",
           "name": "Grid Floor",
           "element": "synthGrid",
           "from": 180,
@@ -215,7 +258,7 @@
           },
           "effects": [
             {
-              "id": "e-mrr3a5ar-9",
+              "id": "e-mrr3qo51-9",
               "type": "fadeIn",
               "params": {
                 "duration": 20
@@ -259,6 +302,42 @@
             },
             {
               "id": "e25",
+              "type": "fadeOut",
+              "params": {
+                "duration": 14
+              }
+            }
+          ]
+        },
+        {
+          "id": "c26",
+          "name": "Procedural day / night cycle bar",
+          "element": "shape",
+          "from": 610,
+          "durationInFrames": 280,
+          "props": {
+            "kind": "rect",
+            "width": 18,
+            "height": 110,
+            "fill": "#7c5cff",
+            "borderRadius": 9,
+            "rotation": 0,
+            "opacity": 1,
+            "x": 211.2,
+            "y": 1976.4
+          },
+          "effects": [
+            {
+              "id": "e27",
+              "type": "wipeIn",
+              "params": {
+                "direction": "top",
+                "duration": 12,
+                "easing": "easeOut"
+              }
+            },
+            {
+              "id": "e28",
               "type": "fadeOut",
               "params": {
                 "duration": 14
@@ -392,7 +471,7 @@
           ]
         },
         {
-          "id": "c-mrr3a5ar-5",
+          "id": "c-mrr3qo51-5",
           "name": "City Skyline",
           "element": "html",
           "from": 180,
@@ -408,14 +487,14 @@
           },
           "effects": [
             {
-              "id": "e-mrr3a5ar-6",
+              "id": "e-mrr3qo51-6",
               "type": "fadeIn",
               "params": {
                 "duration": 20
               }
             },
             {
-              "id": "e-mrr3a5ar-7",
+              "id": "e-mrr3qo51-7",
               "type": "flicker",
               "params": {
                 "amount": 0.06,
@@ -459,6 +538,27 @@
               }
             }
           ]
+        },
+        {
+          "id": "c-mrr3qo51-25",
+          "name": "Near Ridge",
+          "element": "ridge",
+          "from": 600,
+          "durationInFrames": 300,
+          "props": {
+            "width": 3840,
+            "height": 648,
+            "peaks": 7,
+            "amplitude": 346,
+            "baseHeight": 108,
+            "colorDay": "#39566e",
+            "colorNight": "#0b0920",
+            "seed": "near",
+            "opacity": 1,
+            "x": 1920,
+            "y": 1836
+          },
+          "effects": []
         },
         {
           "id": "c36",
@@ -746,7 +846,7 @@
           ]
         },
         {
-          "id": "c-mrr3a5ar-2",
+          "id": "c-mrr3qo51-2",
           "name": "Neon Sun",
           "element": "neonSun",
           "from": 180,
@@ -763,14 +863,14 @@
           },
           "effects": [
             {
-              "id": "e-mrr3a5ar-3",
+              "id": "e-mrr3qo51-3",
               "type": "fadeIn",
               "params": {
                 "duration": 25
               }
             },
             {
-              "id": "e-mrr3a5ar-4",
+              "id": "e-mrr3qo51-4",
               "type": "transform",
               "params": {
                 "start": 0,
@@ -791,7 +891,7 @@
           ]
         },
         {
-          "id": "c-mrr3a5as-20",
+          "id": "c-mrr3qo51-20",
           "name": "City Title",
           "element": "text",
           "from": 550,
@@ -808,7 +908,7 @@
           },
           "effects": [
             {
-              "id": "e-mrr3a5as-21",
+              "id": "e-mrr3qo51-21",
               "type": "letterPop",
               "params": {
                 "stagger": 1.5,
@@ -819,47 +919,25 @@
           ]
         },
         {
-          "id": "c29",
-          "name": "Procedural day / night cycle label",
-          "element": "text",
-          "from": 614,
-          "durationInFrames": 276,
+          "id": "c-mrr3qo51-24",
+          "name": "Far Ridge",
+          "element": "ridge",
+          "from": 600,
+          "durationInFrames": 300,
           "props": {
-            "text": "Procedural day / night cycle",
-            "fontSize": 64,
-            "color": "#ffffff",
-            "fontFamily": "Helvetica, Arial, sans-serif",
-            "fontWeight": 700,
-            "letterSpacing": 2,
-            "x": 752.96,
-            "y": 1976.4
+            "width": 3840,
+            "height": 907,
+            "peaks": 9,
+            "amplitude": 475,
+            "baseHeight": 281,
+            "colorDay": "#5f86b5",
+            "colorNight": "#141131",
+            "seed": "far",
+            "opacity": 1,
+            "x": 1920,
+            "y": 1706
           },
-          "effects": [
-            {
-              "id": "e30",
-              "type": "slideIn",
-              "params": {
-                "direction": "left",
-                "distance": 160,
-                "duration": 16,
-                "easing": "easeOut"
-              }
-            },
-            {
-              "id": "e31",
-              "type": "fadeIn",
-              "params": {
-                "duration": 10
-              }
-            },
-            {
-              "id": "e32",
-              "type": "fadeOut",
-              "params": {
-                "duration": 14
-              }
-            }
-          ]
+          "effects": []
         },
         {
           "id": "c33",
@@ -1017,7 +1095,7 @@
           ]
         },
         {
-          "id": "c-mrr3a5as-38",
+          "id": "c-mrr3qo51-41",
           "name": "Repo Title",
           "element": "text",
           "from": 1500,
@@ -1034,7 +1112,7 @@
           },
           "effects": [
             {
-              "id": "e-mrr3a5as-39",
+              "id": "e-mrr3qo51-42",
               "type": "typewriter",
               "params": {
                 "charsPerSecond": 25
@@ -1133,7 +1211,7 @@
           ]
         },
         {
-          "id": "c-mrr3a5ar-1",
+          "id": "c-mrr3qo51-1",
           "name": "Stars",
           "element": "particles",
           "from": 180,
@@ -1156,7 +1234,7 @@
           "effects": []
         },
         {
-          "id": "c-mrr3a5as-18",
+          "id": "c-mrr3qo51-18",
           "name": "City",
           "element": "isoCity",
           "from": 420,
@@ -1175,7 +1253,7 @@
           },
           "effects": [
             {
-              "id": "e-mrr3a5as-19",
+              "id": "e-mrr3qo51-19",
               "type": "fadeIn",
               "params": {
                 "duration": 10
@@ -1184,43 +1262,25 @@
           ]
         },
         {
-          "id": "c26",
-          "name": "Procedural day / night cycle bar",
-          "element": "shape",
-          "from": 610,
-          "durationInFrames": 280,
+          "id": "c-mrr3qo51-23",
+          "name": "Sun & Moon",
+          "element": "sunMoon",
+          "from": 600,
+          "durationInFrames": 300,
           "props": {
-            "kind": "rect",
-            "width": 18,
-            "height": 110,
-            "fill": "#7c5cff",
-            "borderRadius": 9,
-            "rotation": 0,
+            "width": 3840,
+            "height": 1728,
+            "size": 173,
+            "sunColor": "#ffd93d",
+            "moonColor": "#e8ecff",
             "opacity": 1,
-            "x": 211.2,
-            "y": 1976.4
+            "x": 1920,
+            "y": 864
           },
-          "effects": [
-            {
-              "id": "e27",
-              "type": "wipeIn",
-              "params": {
-                "direction": "top",
-                "duration": 12,
-                "easing": "easeOut"
-              }
-            },
-            {
-              "id": "e28",
-              "type": "fadeOut",
-              "params": {
-                "duration": 14
-              }
-            }
-          ]
+          "effects": []
         },
         {
-          "id": "c-mrr3a5as-27",
+          "id": "c-mrr3qo51-30",
           "name": "Liquid Sub",
           "element": "text",
           "from": 920,
@@ -1237,7 +1297,7 @@
           },
           "effects": [
             {
-              "id": "e-mrr3a5as-28",
+              "id": "e-mrr3qo51-31",
               "type": "fadeIn",
               "params": {
                 "duration": 20
@@ -1290,7 +1350,7 @@
           ]
         },
         {
-          "id": "c-mrr3a5as-29",
+          "id": "c-mrr3qo51-32",
           "name": "Glitch Title",
           "element": "text",
           "from": 1230,
@@ -1307,7 +1367,7 @@
           },
           "effects": [
             {
-              "id": "e-mrr3a5as-30",
+              "id": "e-mrr3qo51-33",
               "type": "glitch",
               "params": {
                 "intensity": 0.6,
@@ -1315,7 +1375,7 @@
               }
             },
             {
-              "id": "e-mrr3a5as-31",
+              "id": "e-mrr3qo51-34",
               "type": "rgbSplit",
               "params": {
                 "amount": 7,
@@ -1323,7 +1383,7 @@
               }
             },
             {
-              "id": "e-mrr3a5as-32",
+              "id": "e-mrr3qo51-35",
               "type": "shake",
               "params": {
                 "intensity": 5,
@@ -1332,14 +1392,14 @@
               }
             },
             {
-              "id": "e-mrr3a5as-33",
+              "id": "e-mrr3qo51-36",
               "type": "fadeIn",
               "params": {
                 "duration": 5
               }
             },
             {
-              "id": "e-mrr3a5as-34",
+              "id": "e-mrr3qo51-37",
               "type": "fadeOut",
               "params": {
                 "duration": 10
@@ -1354,8 +1414,7 @@
           "from": 1330,
           "durationInFrames": 170,
           "props": {
-            "points": "0,0; 640,-280; 1400,120; 2080,-160; 2760,80",
-            "labels": "Idea, Research, Prototype, Launch, Scale",
+            "data": "[{\"x\":0,\"y\":0,\"label\":\"Idea\"},{\"x\":640,\"y\":-280,\"label\":\"Research\",\"color\":\"#35c4ff\"},{\"x\":1400,\"y\":120,\"label\":\"Prototype\"},{\"x\":2080,\"y\":-160,\"label\":\"Launch\",\"color\":\"#ffd166\"},{\"x\":2760,\"y\":80,\"label\":\"Scale\"}]",
             "color": "#6ee7a8",
             "nodeColor": "#7c5cff",
             "speed": 1,
@@ -1386,7 +1445,7 @@
           ]
         },
         {
-          "id": "c-mrr3a5as-36",
+          "id": "c-mrr3qo51-39",
           "name": "History",
           "element": "commitGraph",
           "from": 1515,
@@ -1404,7 +1463,7 @@
           },
           "effects": [
             {
-              "id": "e-mrr3a5as-37",
+              "id": "e-mrr3qo51-40",
               "type": "fadeIn",
               "params": {
                 "duration": 12
@@ -1483,7 +1542,7 @@
           "effects": []
         },
         {
-          "id": "c-mrr3a5ar-0",
+          "id": "c-mrr3qo51-0",
           "name": "Dusk BG",
           "element": "background",
           "from": 180,
@@ -1497,7 +1556,7 @@
           "effects": []
         },
         {
-          "id": "c-mrr3a5as-17",
+          "id": "c-mrr3qo51-17",
           "name": "Blueprint BG",
           "element": "background",
           "from": 420,
@@ -1511,8 +1570,8 @@
           "effects": []
         },
         {
-          "id": "c-mrr3a5as-22",
-          "name": "Sky",
+          "id": "c-mrr3qo51-22",
+          "name": "Sky & Stars",
           "element": "skyCycle",
           "from": 600,
           "durationInFrames": 300,
@@ -1528,7 +1587,7 @@
           "effects": []
         },
         {
-          "id": "c-mrr3a5as-23",
+          "id": "c-mrr3qo51-26",
           "name": "Liquid Title",
           "element": "text",
           "from": 900,
@@ -1545,7 +1604,7 @@
           },
           "effects": [
             {
-              "id": "e-mrr3a5as-24",
+              "id": "e-mrr3qo51-27",
               "type": "letterWave",
               "params": {
                 "amplitude": 65,
@@ -1554,7 +1613,7 @@
               }
             },
             {
-              "id": "e-mrr3a5as-25",
+              "id": "e-mrr3qo51-28",
               "type": "glow",
               "params": {
                 "color": "#35c4ff",
@@ -1563,7 +1622,7 @@
               }
             },
             {
-              "id": "e-mrr3a5as-26",
+              "id": "e-mrr3qo51-29",
               "type": "fadeIn",
               "params": {
                 "duration": 15
@@ -1614,7 +1673,7 @@
           "effects": []
         },
         {
-          "id": "c-mrr3a5as-35",
+          "id": "c-mrr3qo51-38",
           "name": "Terminal BG",
           "element": "background",
           "from": 1500,

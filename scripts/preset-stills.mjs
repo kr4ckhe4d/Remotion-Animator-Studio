@@ -25,8 +25,7 @@ const trailClip = {
   from: 0,
   durationInFrames: 300,
   props: {
-    points: '0,0; 320,-140; 700,60; 1040,-80; 1380,40',
-    labels: 'Start, Research, Prototype, Launch, Scale',
+    data: '[{"x":0,"y":0,"label":"Start"},{"x":320,"y":-140,"label":"Research","color":"#35c4ff"},{"x":700,"y":60,"label":"Prototype"},{"x":1040,"y":-80,"label":"Launch","color":"#ffd166"},{"x":1380,"y":40,"label":"Scale"}]',
     color: '#6ee7a8',
     nodeColor: '#7c5cff',
     speed: 0.8,

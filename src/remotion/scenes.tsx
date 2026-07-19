@@ -215,14 +215,6 @@ export const SkyCycle: React.FC<{ clip: Clip }> = ({ clip }) => {
     extrapolateRight: 'clamp',
   });
 
-  // sun rises at t=.8, sets at t=.3 (wraps); simple arc parameterisation
-  const sunPhase = ((t + 0.2) % 1) / 0.5; // 0..1 while sun is up
-  const sunUp = sunPhase <= 1;
-  const sunX = sunPhase * w;
-  const sunY = h * 0.75 - Math.sin(sunPhase * Math.PI) * h * 0.55;
-  const moonPhase = ((t - 0.3 + 1) % 1) / 0.5;
-  const moonUp = moonPhase <= 1 && nightness > 0.1;
-
   const stars: React.ReactNode[] = [];
   const starCount = Math.round(Number(p.stars));
   for (let i = 0; i < starCount; i++) {
@@ -239,19 +231,6 @@ export const SkyCycle: React.FC<{ clip: Clip }> = ({ clip }) => {
     );
   }
 
-  const ridge = (layerSeed: number, base: number, amp: number): string => {
-    let d = `M 0 ${h}`;
-    const steps = 9;
-    for (let i = 0; i <= steps; i++) {
-      const x = (w / steps) * i;
-      const y = h - base - prand(seed, layerSeed, i) * amp;
-      d += ` L ${x.toFixed(1)} ${y.toFixed(1)}`;
-    }
-    return d + ` L ${w} ${h} Z`;
-  };
-  const mFar = interpolateColors(t, stops, ['#5f86b5', '#7c3f55', '#141131', '#75405c', '#5f86b5']);
-  const mNear = interpolateColors(t, stops, ['#39566e', '#4a2438', '#0b0920', '#452a3c', '#39566e']);
-
   return (
     <svg width={w} height={h} style={{ display: 'block', opacity: p.opacity }}>
       <defs>
@@ -262,44 +241,114 @@ export const SkyCycle: React.FC<{ clip: Clip }> = ({ clip }) => {
       </defs>
       <rect width={w} height={h} fill={`url(#sky-${clip.id})`} />
       {stars}
+    </svg>
+  );
+};
+
+/** Sun and moon arcing across the clip — one full day per clip, same phase math as SkyCycle. */
+export const SunMoon: React.FC<{ clip: Clip }> = ({ clip }) => {
+  const frame = useCurrentFrame();
+  const p = clip.props;
+  const w = Number(p.width);
+  const h = Number(p.height);
+  const t = (frame / Math.max(1, clip.durationInFrames)) % 1;
+  const size = Number(p.size);
+
+  const sunPhase = ((t + 0.2) % 1) / 0.5; // 0..1 while the sun is up
+  const sunUp = sunPhase <= 1;
+  const moonPhase = ((t - 0.3 + 1) % 1) / 0.5;
+  const nightness = interpolate(t, [0.35, 0.5, 0.85, 0.95], [0, 1, 1, 0], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+  });
+  const moonUp = moonPhase <= 1 && nightness > 0.1;
+
+  return (
+    <svg width={w} height={h} style={{ display: 'block', opacity: p.opacity }}>
       {sunUp ? (
-        <circle cx={sunX} cy={sunY} r={h * 0.08} fill="#ffd93d" style={{ filter: `drop-shadow(0 0 ${h * 0.05}px #ffb45c)` }} />
+        <circle
+          cx={sunPhase * w}
+          cy={h * 0.9 - Math.sin(sunPhase * Math.PI) * h * 0.72}
+          r={size}
+          fill={String(p.sunColor)}
+          style={{ filter: `drop-shadow(0 0 ${size * 0.7}px ${p.sunColor})` }}
+        />
       ) : null}
       {moonUp ? (
         <circle
           cx={moonPhase * w}
-          cy={h * 0.7 - Math.sin(moonPhase * Math.PI) * h * 0.5}
-          r={h * 0.055}
-          fill="#e8ecff"
-          opacity={0.9}
-          style={{ filter: `drop-shadow(0 0 ${h * 0.03}px #cfd8ff)` }}
+          cy={h * 0.85 - Math.sin(moonPhase * Math.PI) * h * 0.62}
+          r={size * 0.7}
+          fill={String(p.moonColor)}
+          opacity={0.92}
+          style={{ filter: `drop-shadow(0 0 ${size * 0.4}px ${p.moonColor})` }}
         />
       ) : null}
-      <path d={ridge(11, h * 0.18, h * 0.22)} fill={mFar} />
-      <path d={ridge(23, h * 0.06, h * 0.16)} fill={mNear} />
+    </svg>
+  );
+};
+
+/** A single seeded mountain silhouette whose fill blends day→night over the clip. */
+export const Ridge: React.FC<{ clip: Clip }> = ({ clip }) => {
+  const frame = useCurrentFrame();
+  const p = clip.props;
+  const w = Number(p.width);
+  const h = Number(p.height);
+  const seed = String(p.seed);
+  const peaks = Math.max(3, Math.round(Number(p.peaks)));
+  const t = (frame / Math.max(1, clip.durationInFrames)) % 1;
+  const stops = [0, 0.3, 0.55, 0.8, 1];
+  // blend between the day and night fills following the same phases as the sky
+  const fill = interpolateColors(t, stops, [
+    String(p.colorDay),
+    interpolateColors(0.5, [0, 1], [String(p.colorDay), String(p.colorNight)]),
+    String(p.colorNight),
+    interpolateColors(0.5, [0, 1], [String(p.colorDay), String(p.colorNight)]),
+    String(p.colorDay),
+  ]);
+
+  let d = `M 0 ${h}`;
+  for (let i = 0; i <= peaks; i++) {
+    const x = (w / peaks) * i;
+    const y = h - Number(p.baseHeight) - prand(seed, 7, i) * Number(p.amplitude);
+    d += ` L ${x.toFixed(1)} ${y.toFixed(1)}`;
+  }
+  d += ` L ${w} ${h} Z`;
+
+  return (
+    <svg width={w} height={h} style={{ display: 'block', opacity: p.opacity }}>
+      <path d={d} fill={fill} />
     </svg>
   );
 };
 
 /* ---------------- Story trail: waypoint nodes along a drawn route ---------------- */
 
+interface TrailPoint {
+  x: number;
+  y: number;
+  label?: string;
+  /** colors this node and the link leaving it; falls back to the element defaults */
+  color?: string;
+}
+
 export const NodeTrail: React.FC<{ clip: Clip }> = ({ clip }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const p = clip.props;
-  const pts: Array<{ x: number; y: number }> = String(p.points ?? '')
-    .split(';')
-    .map((s) => s.trim())
-    .filter(Boolean)
-    .map((s) => {
-      const [x, y] = s.split(',').map(Number);
-      return { x: x || 0, y: y || 0 };
-    });
+  let pts: TrailPoint[] = [];
+  try {
+    const parsed = JSON.parse(String(p.data));
+    if (Array.isArray(parsed)) {
+      pts = parsed
+        .filter((q) => q && typeof q === 'object')
+        .map((q) => ({ x: Number(q.x) || 0, y: Number(q.y) || 0, label: q.label, color: q.color }));
+    }
+  } catch {
+    /* invalid JSON — draw nothing until it parses */
+  }
   if (pts.length < 2) return null;
 
-  const labels = String(p.labels ?? '')
-    .split(',')
-    .map((s) => s.trim());
   const interval = fps / Number(p.speed);
   const progress = frame / interval;
   const nodeSize = Number(p.nodeSize);
@@ -318,10 +367,12 @@ export const NodeTrail: React.FC<{ clip: Clip }> = ({ clip }) => {
   pts.forEach((pt, i) => {
     const x = pt.x - minX;
     const y = pt.y - minY;
+    const nodeCol = pt.color || String(p.nodeColor);
     if (i > 0) {
       const prev = pts[i - 1];
       const px = prev.x - minX;
       const py = prev.y - minY;
+      const linkCol = prev.color || String(p.color);
       const seg = interpolate(progress - (i - 1), [0, 1], [0, 1], {
         extrapolateLeft: 'clamp',
         extrapolateRight: 'clamp',
@@ -335,7 +386,7 @@ export const NodeTrail: React.FC<{ clip: Clip }> = ({ clip }) => {
           key={`l${i}`}
           d={d}
           fill="none"
-          stroke={String(p.color)}
+          stroke={linkCol}
           strokeWidth={Number(p.lineWidth)}
           strokeDasharray={len}
           strokeDashoffset={(1 - seg) * len}
@@ -350,11 +401,11 @@ export const NodeTrail: React.FC<{ clip: Clip }> = ({ clip }) => {
         <circle
           r={nodeSize * pop}
           fill="#0e0f13"
-          stroke={String(p.nodeColor)}
+          stroke={nodeCol}
           strokeWidth={Math.max(2, nodeSize / 4)}
-          style={{ filter: `drop-shadow(0 0 ${nodeSize * 0.8}px ${p.nodeColor})` }}
+          style={{ filter: `drop-shadow(0 0 ${nodeSize * 0.8}px ${nodeCol})` }}
         />
-        {labels[i] ? (
+        {pt.label ? (
           <text
             y={above ? -nodeSize * 2 : nodeSize * 2 + Number(p.fontSize) * 0.8}
             textAnchor="middle"
@@ -363,7 +414,7 @@ export const NodeTrail: React.FC<{ clip: Clip }> = ({ clip }) => {
             fontSize={Number(p.fontSize)}
             fontWeight="bold"
           >
-            {labels[i]}
+            {pt.label}
           </text>
         ) : null}
       </g>,

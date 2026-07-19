@@ -147,8 +147,13 @@ scenes.push([
 scenes.push([
   clip('background', 'Trail BG', 1320, 180, { fillType: 'radial', colorA: '#12172b', colorB: '#07090f', angle: 0 }, []),
   clip('nodeTrail', 'Journey', 1330, 170, {
-    points: '0,0; 640,-280; 1400,120; 2080,-160; 2760,80',
-    labels: 'Idea, Research, Prototype, Launch, Scale',
+    data: JSON.stringify([
+      { x: 0, y: 0, label: 'Idea' },
+      { x: 640, y: -280, label: 'Research', color: '#35c4ff' },
+      { x: 1400, y: 120, label: 'Prototype' },
+      { x: 2080, y: -160, label: 'Launch', color: '#ffd166' },
+      { x: 2760, y: 80, label: 'Scale' },
+    ]),
     color: '#6ee7a8', nodeColor: '#7c5cff', speed: 1, nodeSize: 34, lineWidth: 11, curved: 'yes',
     fontSize: 62, textColor: '#e8eaf0', opacity: 1, x: W * 0.14, y: H * 0.52,
   }, [['fadeIn', { duration: 10 }], ['fadeOut', { duration: 14 }]]),

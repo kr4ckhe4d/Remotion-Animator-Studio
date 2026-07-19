@@ -54,9 +54,11 @@ npm run dev
 | 🛣️ Synth Grid | Endless-outrun perspective floor, scrolls forever | line color, cell size, drive speed, glow |
 | 🌅 Neon Sun | Striped retro sun with glow | colors, stripes, glow |
 | 🏙️ Iso City | Generative isometric city that grows building-by-building from a blueprint | grid, tile size, palette, stagger, seed |
-| 🌗 Day/Night Sky | Procedural sky — one full day per clip: sun arc, sunset colors, stars, moon, mountains | size, stars, seed |
+| 🌗 Day/Night Sky | Morphing sky gradient + stars — one full day per clip | size, stars, seed |
+| 🌞 Sun & Moon | Sun/moon arcing on the same day-cycle timing (pairs with the sky) | size, colors |
+| ⛰️ Ridge | One seeded mountain silhouette; fill blends day→night over the clip — stack several, delete, recolor | peaks, amplitude, day/night colors, seed |
 | 🌿 Commit Graph | Animated git history: branch lanes, glowing nodes, typing messages, ± counters | commits JSON, speed, spacing, lane colors |
-| 📍 Story Trail | Glowing waypoint route — nodes pop one by one along a path you **draw on the canvas** (✏️ button in the Inspector), with labels. Great for journeys, roadmaps, storylines | waypoints, labels, colors, speed, curved |
+| 📍 Story Trail | Glowing waypoint route — nodes pop one by one. Waypoints are JSON: `[{"x","y","label?","color?"}…]` where `color` tints that node and its outgoing segment. **Draw the route on the canvas** (✏️ button) and your labels/colors are preserved | waypoints JSON, default colors, speed, curved |
 | 🖱️ Cursor | Mouse pointer for UI-demo storytelling — pair with Motion Path + Click Pulse | size, fill |
 | 😀 Emoji | Big emoji sticker | char, size |
 | 🎨 Background | Full-frame solid/linear/radial fill | colors, angle |

@@ -17,6 +17,8 @@ export type ElementType =
   | 'neonSun'
   | 'isoCity'
   | 'skyCycle'
+  | 'sunMoon'
+  | 'ridge'
   | 'commitGraph'
   | 'nodeTrail';
 

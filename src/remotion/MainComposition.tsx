@@ -16,7 +16,7 @@ import {
 import { useAudioData, visualizeAudio } from '@remotion/media-utils';
 import { computeEffectStyle, effectParams, typewriterChars, type ComputedStyle } from '../effects';
 import type { Clip, Project } from '../types';
-import { CommitGraph, IsoCity, NeonSun, NodeTrail, SkyCycle, SynthGrid } from './scenes';
+import { CommitGraph, IsoCity, NeonSun, NodeTrail, Ridge, SkyCycle, SunMoon, SynthGrid } from './scenes';
 
 /** Letters riding a sine wave; `gain` scales amplitude (1 = manual, >1 = audio-driven). */
 const WavyLetters: React.FC<{
@@ -549,6 +549,10 @@ const ElementContent: React.FC<{ clip: Clip }> = ({ clip }) => {
       return <IsoCity clip={clip} />;
     case 'skyCycle':
       return <SkyCycle clip={clip} />;
+    case 'sunMoon':
+      return <SunMoon clip={clip} />;
+    case 'ridge':
+      return <Ridge clip={clip} />;
     case 'commitGraph':
       return <CommitGraph clip={clip} />;
     case 'nodeTrail':
