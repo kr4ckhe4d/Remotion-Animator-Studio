@@ -17,7 +17,8 @@ export type ElementType =
   | 'neonSun'
   | 'isoCity'
   | 'skyCycle'
-  | 'commitGraph';
+  | 'commitGraph'
+  | 'nodeTrail';
 
 export type EffectType =
   | 'fadeIn'

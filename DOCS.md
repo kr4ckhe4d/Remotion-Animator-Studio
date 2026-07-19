@@ -56,6 +56,7 @@ npm run dev
 | 🏙️ Iso City | Generative isometric city that grows building-by-building from a blueprint | grid, tile size, palette, stagger, seed |
 | 🌗 Day/Night Sky | Procedural sky — one full day per clip: sun arc, sunset colors, stars, moon, mountains | size, stars, seed |
 | 🌿 Commit Graph | Animated git history: branch lanes, glowing nodes, typing messages, ± counters | commits JSON, speed, spacing, lane colors |
+| 📍 Story Trail | Glowing waypoint route — nodes pop one by one along a path you **draw on the canvas** (✏️ button in the Inspector), with labels. Great for journeys, roadmaps, storylines | waypoints, labels, colors, speed, curved |
 | 🖱️ Cursor | Mouse pointer for UI-demo storytelling — pair with Motion Path + Click Pulse | size, fill |
 | 😀 Emoji | Big emoji sticker | char, size |
 | 🎨 Background | Full-frame solid/linear/radial fill | colors, angle |
@@ -136,6 +137,8 @@ Notes:
 
 ## 5. Presets
 
+Presets now insert **one track per clip** (top layer first), so every piece is immediately visible and editable in its own lane.
+
 Double-click (or drag onto the timeline) to insert a fully-built animation on a new track, positioned at the playhead and scaled to your canvas:
 
 - **Title Intro** — spring-pop title + typewriter subtitle
@@ -159,6 +162,10 @@ After inserting, every piece is just normal clips — tweak text, colors, timing
 - **Undo/redo**: ⌘Z / ⇧⌘Z, up to 100 steps.
 
 ## 7. Rendering & export
+
+### Stills
+
+**📷 Still** in the top bar renders the current frame as a PNG through the same pipeline and downloads it — great for thumbnails and posters.
 
 ### In-app (recommended)
 

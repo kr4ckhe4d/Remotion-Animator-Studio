@@ -281,6 +281,110 @@ export const SkyCycle: React.FC<{ clip: Clip }> = ({ clip }) => {
   );
 };
 
+/* ---------------- Story trail: waypoint nodes along a drawn route ---------------- */
+
+export const NodeTrail: React.FC<{ clip: Clip }> = ({ clip }) => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const p = clip.props;
+  const pts: Array<{ x: number; y: number }> = String(p.points ?? '')
+    .split(';')
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .map((s) => {
+      const [x, y] = s.split(',').map(Number);
+      return { x: x || 0, y: y || 0 };
+    });
+  if (pts.length < 2) return null;
+
+  const labels = String(p.labels ?? '')
+    .split(',')
+    .map((s) => s.trim());
+  const interval = fps / Number(p.speed);
+  const progress = frame / interval;
+  const nodeSize = Number(p.nodeSize);
+  const curved = p.curved !== 'no';
+
+  const pad = 120;
+  const xs = pts.map((q) => q.x);
+  const ys = pts.map((q) => q.y);
+  const minX = Math.min(...xs) - pad;
+  const minY = Math.min(...ys) - pad;
+  const svgW = Math.max(...xs) - minX + pad;
+  const svgH = Math.max(...ys) - minY + pad;
+
+  const links: React.ReactNode[] = [];
+  const nodes: React.ReactNode[] = [];
+  pts.forEach((pt, i) => {
+    const x = pt.x - minX;
+    const y = pt.y - minY;
+    if (i > 0) {
+      const prev = pts[i - 1];
+      const px = prev.x - minX;
+      const py = prev.y - minY;
+      const seg = interpolate(progress - (i - 1), [0, 1], [0, 1], {
+        extrapolateLeft: 'clamp',
+        extrapolateRight: 'clamp',
+      });
+      const len = Math.hypot(x - px, y - py) * 1.3;
+      const d = curved
+        ? `M ${px} ${py} C ${px + (x - px) / 2} ${py} ${px + (x - px) / 2} ${y} ${x} ${y}`
+        : `M ${px} ${py} L ${x} ${y}`;
+      links.push(
+        <path
+          key={`l${i}`}
+          d={d}
+          fill="none"
+          stroke={String(p.color)}
+          strokeWidth={Number(p.lineWidth)}
+          strokeDasharray={len}
+          strokeDashoffset={(1 - seg) * len}
+          opacity={0.85}
+        />,
+      );
+    }
+    const pop = spring({ frame: Math.max(0, frame - i * interval), fps, config: { damping: 11, mass: 0.6 } });
+    const above = i % 2 === 0;
+    nodes.push(
+      <g key={`n${i}`} transform={`translate(${x}, ${y})`} opacity={Math.min(1, pop * 1.4)}>
+        <circle
+          r={nodeSize * pop}
+          fill="#0e0f13"
+          stroke={String(p.nodeColor)}
+          strokeWidth={Math.max(2, nodeSize / 4)}
+          style={{ filter: `drop-shadow(0 0 ${nodeSize * 0.8}px ${p.nodeColor})` }}
+        />
+        {labels[i] ? (
+          <text
+            y={above ? -nodeSize * 2 : nodeSize * 2 + Number(p.fontSize) * 0.8}
+            textAnchor="middle"
+            fill={String(p.textColor)}
+            fontFamily="Helvetica, Arial, sans-serif"
+            fontSize={Number(p.fontSize)}
+            fontWeight="bold"
+          >
+            {labels[i]}
+          </text>
+        ) : null}
+      </g>,
+    );
+  });
+
+  // zero-size anchor keeps the first waypoint pinned to the clip's x/y
+  return (
+    <div style={{ width: 0, height: 0, position: 'relative', opacity: p.opacity }}>
+      <svg
+        width={svgW}
+        height={svgH}
+        style={{ position: 'absolute', left: minX, top: minY, overflow: 'visible', display: 'block' }}
+      >
+        {links}
+        {nodes}
+      </svg>
+    </div>
+  );
+};
+
 /* ---------------- 5. Git commit graph timeline ---------------- */
 
 interface CommitDatum {

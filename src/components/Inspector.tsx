@@ -305,6 +305,11 @@ export const Inspector: React.FC = () => {
               }}
             />
           ) : null}
+          {def.key === 'points' && clip.element === 'nodeTrail' ? (
+            <button className="btn btn-small" onClick={() => useStore.getState().startDrawingTrail(clip.id)}>
+              ✏️ Draw waypoints on canvas
+            </button>
+          ) : null}
           {def.key === 'html' && clip.element === 'html' ? (
             <button
               className="btn btn-small"

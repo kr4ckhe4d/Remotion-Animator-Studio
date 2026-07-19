@@ -7,7 +7,8 @@ import path from 'node:path';
 import { buildPresetClips, PRESETS } from '/tmp/presets-bundle.mjs';
 
 const SHOTS = [
-  ['synthwaveOutrun', [70]],
+  ['synthwaveOutrun', [70, 160]],
+  ['nodeTrail', [150]],
   ['liquidType', [80]],
   ['isoCityGrowth', [130]],
   ['dayNight', [20, 130, 250]],
@@ -17,8 +18,33 @@ const SHOTS = [
 mkdirSync('out/stills', { recursive: true });
 const serveUrl = await bundle({ entryPoint: path.resolve('remotion/index.ts') });
 
+const trailClip = {
+  id: 'trail1',
+  name: 'Trail',
+  element: 'nodeTrail',
+  from: 0,
+  durationInFrames: 300,
+  props: {
+    points: '0,0; 320,-140; 700,60; 1040,-80; 1380,40',
+    labels: 'Start, Research, Prototype, Launch, Scale',
+    color: '#6ee7a8',
+    nodeColor: '#7c5cff',
+    speed: 0.8,
+    nodeSize: 16,
+    lineWidth: 5,
+    curved: 'yes',
+    fontSize: 30,
+    textColor: '#e8eaf0',
+    opacity: 1,
+    x: 280,
+    y: 560,
+  },
+  effects: [],
+};
+
 for (const [presetId, frames] of SHOTS) {
-  const clips = buildPresetClips(PRESETS[presetId], 1920, 1080, 0);
+  const clips =
+    presetId === 'nodeTrail' ? [trailClip] : buildPresetClips(PRESETS[presetId], 1920, 1080, 0);
   const project = {
     name: presetId,
     width: 1920,
