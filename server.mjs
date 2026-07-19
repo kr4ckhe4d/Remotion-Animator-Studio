@@ -1,8 +1,8 @@
 // Local render server: lets the editor's "Export" button render real MP4s.
 // Started automatically by `npm run dev` (see package.json).
 import { bundle } from '@remotion/bundler';
-import { renderMedia, selectComposition } from '@remotion/renderer';
-import { createReadStream, mkdirSync, statSync } from 'node:fs';
+import { renderMedia, renderStill, selectComposition } from '@remotion/renderer';
+import { createReadStream, mkdirSync, readFileSync, statSync } from 'node:fs';
 import http from 'node:http';
 import path from 'node:path';
 
@@ -79,6 +79,43 @@ const server = http.createServer(async (req, res) => {
         json(res, 200, { id });
       } catch (e) {
         json(res, 400, { error: String(e) });
+      }
+    });
+    return;
+  }
+
+  if (req.method === 'POST' && url.pathname === '/api/still') {
+    let body = '';
+    req.on('data', (c) => (body += c));
+    req.on('end', async () => {
+      try {
+        const { project, frame = 0, scale = 1 } = JSON.parse(body);
+        if (!project?.tracks) return json(res, 400, { error: 'Invalid project' });
+        const serveUrl = await getBundle();
+        const inputProps = { project };
+        const composition = await selectComposition({ serveUrl, id: 'Main', inputProps });
+        const safeName = String(project.name || 'frame').replace(/[^a-z0-9-_ ]/gi, '').trim() || 'frame';
+        const file = path.join(OUT_DIR, 'stills', `${safeName}-f${frame}.png`);
+        mkdirSync(path.dirname(file), { recursive: true });
+        console.log(`[still] rendering frame ${frame} @ ${Number(scale)}x → ${file}`);
+        await renderStill({
+          composition,
+          serveUrl,
+          frame: Math.max(0, Math.min(composition.durationInFrames - 1, Number(frame))),
+          output: file,
+          inputProps,
+          scale: Number(scale) || 1,
+        });
+        const png = readFileSync(file);
+        res.writeHead(200, {
+          'Content-Type': 'image/png',
+          'Content-Length': png.length,
+          'Content-Disposition': `attachment; filename="${path.basename(file)}"`,
+        });
+        res.end(png);
+      } catch (e) {
+        console.error('[still] failed:', e);
+        json(res, 500, { error: String(e?.message ?? e) });
       }
     });
     return;

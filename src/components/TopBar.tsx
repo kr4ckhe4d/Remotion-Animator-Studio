@@ -76,6 +76,7 @@ export const TopBar: React.FC = () => {
   const [showExport, setShowExport] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
   const [savedFlash, setSavedFlash] = useState(false);
+  const [stillBusy, setStillBusy] = useState(false);
   const fsAccess = 'showSaveFilePicker' in window;
 
   const currentJson = () => JSON.stringify(useStore.getState().project, null, 2);
@@ -153,6 +154,29 @@ export const TopBar: React.FC = () => {
       loadJson(await handle.getFile());
     } catch {
       /* user cancelled the picker */
+    }
+  };
+
+  const exportStill = async () => {
+    const s = useStore.getState();
+    setStillBusy(true);
+    try {
+      const res = await fetch('/api/still', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ project: s.project, frame: s.currentFrame, scale: 1 }),
+      });
+      if (!res.ok) throw new Error(`server ${res.status}`);
+      const blob = await res.blob();
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `${s.project.name.replace(/[^a-z0-9-_ ]/gi, '') || 'frame'}-f${s.currentFrame}.png`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    } catch {
+      alert('Could not render the still — is the render server running? (npm run dev starts it)');
+    } finally {
+      setStillBusy(false);
     }
   };
 
@@ -276,6 +300,14 @@ export const TopBar: React.FC = () => {
         </button>
         <button className="btn" onClick={() => setShowHelp(true)} title="Help & docs">
           ？Help
+        </button>
+        <button
+          className="btn"
+          onClick={exportStill}
+          disabled={stillBusy}
+          title="Render the current frame as a PNG"
+        >
+          {stillBusy ? '⏳ Rendering…' : '📷 Still'}
         </button>
         <button className="btn btn-primary" onClick={() => setShowExport(true)}>
           ⬇ Export MP4
