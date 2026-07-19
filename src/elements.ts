@@ -44,7 +44,7 @@ export const ELEMENTS: Record<ElementType, ElementDef> = {
       { key: 'fontFamily', label: 'Font', kind: 'select', options: FONTS },
       { key: 'fontWeight', label: 'Weight', kind: 'select', options: ['300', '400', '500', '700', '900'] },
       { key: 'letterSpacing', label: 'Letter spacing', kind: 'number', min: -10, max: 60, step: 0.5 },
-      { key: 'textureSrc', label: 'Texture image URL (fills the letters)', kind: 'text' },
+      { key: 'textureSrc', label: 'Letter fill — image URL or CSS gradient(…)', kind: 'text' },
       ...POSITION,
     ],
   },

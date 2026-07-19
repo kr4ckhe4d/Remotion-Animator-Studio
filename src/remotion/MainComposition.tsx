@@ -94,7 +94,10 @@ const TextContent: React.FC<{ clip: Clip }> = ({ clip }) => {
   // texture-masked typography: an image fills the letters (background-clip: text)
   const textureStyle: React.CSSProperties = p.textureSrc
     ? {
-        backgroundImage: `url(${p.textureSrc})`,
+        // a CSS gradient() works too — reliable in renders since it needs no network fetch
+        backgroundImage: String(p.textureSrc).includes('gradient(')
+          ? String(p.textureSrc)
+          : `url(${p.textureSrc})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         WebkitBackgroundClip: 'text',
